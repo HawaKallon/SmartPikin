@@ -1,0 +1,144 @@
+
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-header bg-gradient-primary text-white text-center py-4">
+            <h3 class="card-title fw-bold mb-0">Complete Your Application</h3>
+        </div>
+        <div class="card-body p-4">
+            <!-- Display Messages -->
+            {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+
+                <!-- Progress Bar -->
+                <div class="progress mb-4" style="height: 30px;">
+                    {% with current_step=wizard.steps.current|add:"1" %}
+                    {% with total_steps=wizard.steps.count %}
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                         role="progressbar"
+                         style="width: {{ current_step|div:total_steps|mul:100 }}%;"
+                         aria-valuenow="{{ current_step }}" aria-valuemin="0" aria-valuemax="{{ total_steps }}">
+                        <span class="fw-bold">Step {{ current_step }} of {{ total_steps }}</span>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-group mb-4">
+                    <div class="row">
+                        <div class="col-12">
+                            {% if wizard.steps.current == wizard.steps.last %}
+                            <!-- Review Application on last step -->
+                            <h4 class="fw-bold mb-4">Review Your Application</h4>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tbody>
+                                        {% for field, value in application_data.items %}
+                                        <tr>
+                                            <td><strong>{{ field|capfirst }}</strong></td>
+                                            <td>{{ value }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <!-- Render regular form fields for other steps -->
+                            {{ wizard.form.as_p|safe }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between">
+                    {% if wizard.steps.prev %}
+                    <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"
+                            class="btn btn-secondary btn-lg shadow-sm">
+                        <i class="bi bi-arrow-left"></i> Previous
+                    </button>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                        {% if wizard.steps.current == wizard.steps.last %}
+                        Submit <i class="bi bi-check-circle"></i>
+                        {% else %}
+                        Next <i class="bi bi-arrow-right"></i>
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+
+            <!-- Back to School List Button -->
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Back to School Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Additional Custom Styles -->
+{% block style %}
+	
+
+<style>
+    .card {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-image: linear-gradient(135deg, #4c84ff, #1e88e5);
+    }
+    .btn {
+        transition: all 0.3s ease-in-out;
+        width: auto;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+    .progress-bar {
+        font-size: 1.2rem;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        padding: 12px 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        font-size: 1rem;
+    }
+    .form-control:focus {
+        border-color: #4c84ff;
+        box-shadow: 0 0 8px rgba(76, 132, 255, 0.25);
+        outline: none;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,1049 @@
+
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block page_content %}
+<div class="container-fluid py-5">
+
+  <!-- Hero Section -->
+  <section class="hero-section d-flex flex-column align-items-center justify-content-center py-5 bg-light">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- School Logo -->
+        <div class="col-md-4 col-lg-3 text-center mb-4 mb-md-0">
+          {% if school.logo %}
+          <img 
+            src="{{ school.logo.url }}" 
+            alt="{{ school.name }} logo" 
+            class="img-fluid rounded-circle shadow lazyload" 
+            width="150" 
+            height="150" 
+            style="object-fit: cover;" />
+          {% endif %}
+        </div>
+
+        <!-- School Info -->
+        <div class="col-md-8 col-lg-9">
+          <h1 class="display-4 fw-bold mb-3 text-primary">{{ school.name }}</h1>
+          <p class="lead text-muted mb-4">{{ school.school_motto }}</p>
+
+          <!-- School Details -->
+          <div class="school-details d-flex flex-wrap gap-3 mt-3">
+            <span class="badge bg-secondary rounded-pill px-3 py-2">
+              <strong>Type:</strong> {{ school.get_school_type_display }}
+            </span>
+            <span class="badge bg-info rounded-pill px-3 py-2">
+              <strong>Established:</strong> {{ school.established_year|date:"Y" }}
+            </span>
+            <span class="badge bg-success rounded-pill px-3 py-2">
+              <strong>Ownership:</strong> {{ school.get_ownership_type_display }}
+            </span>
+          </div>
+
+          <!-- Exam Badges -->
+<div class="exam-badges d-flex flex-wrap mt-3 gap-2">
+    {% for exam, status in exam_statuses %}
+    <span 
+        class="badge rounded-pill px-3 py-2 {% if status %}bg-success{% else %}bg-danger{% endif %}"
+        title="{% if status %}School participates in {{ exam }} exams{% else %}School does not participate in {{ exam }} exams{% endif %}">
+        <strong>{{ exam }}:</strong> {% if status %}Yes{% else %}No{% endif %}
+    </span>
+    {% endfor %}
+</div>
+
+          <!-- Contact Info -->
+          <div class="contact-info mt-4 d-flex flex-wrap align-items-center gap-4">
+            {% if school.contact_number %}
+            <div class="contact-item d-flex align-items-center text-success">
+              <i class="fas fa-phone-alt me-2"></i>
+              <span>{{ school.contact_number }}</span>
+            </div>
+            {% endif %}
+            {% if school.email_address %}
+            <div class="contact-item d-flex align-items-center text-info">
+              <i class="fas fa-envelope me-2"></i>
+              <a href="mailto:{{ school.email_address }}">{{ school.email_address }}</a>
+            </div>
+            {% endif %}
+            {% if school.website %}
+            <div class="contact-item d-flex align-items-center text-primary">
+              <i class="fas fa-globe me-2"></i>
+              <a href="{{ school.website }}" target="_blank" rel="noopener noreferrer">{{ school.website }}</a>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Call-to-Action Buttons -->
+          <div class="d-flex flex-row justify-content-start mt-4 gap-3">
+            <a href="{% url 'core:application_form_wizard' school.pk %}" class="btn btn-primary btn-lg px-4 shadow-sm">Apply Now</a>
+            <a href="#" class="btn btn-outline-primary btn-lg px-4 shadow-sm">Download Brochure</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Facilities Section -->
+  <section class="facilities-section py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center text-primary fw-bold mb-5">Our Facilities</h2>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for facility in school.facilities.all %}
+        <div class="col">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center">
+              <i class="{{ facility.icon }} text-primary mb-3 fa-3x"></i>
+              <h5 class="card-title fw-bold">{{ facility.name }}</h5>
+              <p class="card-text text-muted">{{ facility.description|truncatewords:20 }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="statistics-chart-section py-5 bg-light">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="card-title text-primary fw-bold mb-4 text-center">Key Metrics</h2>
+              <div class="row row-cols-1 row-cols-md-2 g-4">
+                <div class="col">
+                  <div class="card h-100 text-center shadow-sm border-0 bg-white">
+                    <div class="card-body py-4">
+                      <h3 class="card-title text-primary fw-bold">{{ school.total_enrollment|default:"N/A" }}</h3>
+                      <p class="card-text text-muted">Total Enrollment</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card h-100 text-center shadow-sm border-0 bg-white">
+                    <div class="card-body py-4">
+                      <h3 class="card-title text-success fw-bold">{{ school.teacher_to_student_ratio|default:"N/A" }}</h3>
+                      <p class="card-text text-muted">Teacher-Student Ratio</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card h-100 text-center shadow-sm border-0 bg-white">
+                    <div class="card-body py-4">
+                      <h3 class="card-title text-warning fw-bold">{{ school.percentage_of_qualified_teachers|default:"N/A" }}%</h3>
+                      <p class="card-text text-muted">Qualified Teachers</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card h-100 text-center shadow-sm border-0 bg-white">
+                    <div class="card-body py-4">
+                      <h3 class="card-title text-warning fw-bold">{{ school.performance_metrics.pass_rate|default:"N/A" }}%</h3>
+                      <p class="card-text text-muted">Pass Rate</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="card-title text-primary fw-bold mb-4 text-center">Enrollment Trends</h2>
+              <canvas id="enrollmentChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+<section class="tabs-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center text-primary fw-bold mb-4">Explore More About the School</h2>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs justify-content-center mb-4" id="schoolTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="district-tab" data-bs-toggle="tab" data-bs-target="#district" type="button" role="tab" aria-controls="district" aria-selected="true">
+          District Info
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates" type="button" role="tab" aria-controls="certificates" aria-selected="false">
+          Certificates
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button" role="tab" aria-controls="activities" aria-selected="false">
+          Activities
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab" aria-controls="applications" aria-selected="false">
+          Application Details
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="etc-tab" data-bs-toggle="tab" data-bs-target="#etc" type="button" role="tab" aria-controls="etc" aria-selected="false">
+          Other Information
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="schoolTabContent">
+      <!-- District Tab -->
+      <div class="tab-pane fade show active" id="district" role="tabpanel" aria-labelledby="district-tab">
+        {% if district %}
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100 shadow border-0">
+              <div class="card-body">
+                <h5 class="card-title text-primary fw-bold">District Information</h5>
+                <p class="card-text"><strong>Name:</strong> {{ district.name }}</p>
+                <p class="card-text"><strong>Region:</strong> {{ district.get_region_display }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100 shadow border-0">
+              <div class="card-body">
+                <h5 class="card-title text-primary fw-bold">Statistics</h5>
+                <p class="card-text"><strong>Population:</strong> {{ district.population }}</p>
+                <p class="card-text"><strong>Literacy Rate:</strong> {{ district.literacy_rate }}%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted">District information is not available.</p>
+        {% endif %}
+      </div>
+
+      <!-- Certificates Tab -->
+      <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates-tab">
+        {% if certificates %}
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">Certificates Offered</h5>
+            <ul class="list-group list-group-flush">
+              {% for cert in certificates %}
+              <li class="list-group-item text-secondary"><i class="fas fa-certificate text-primary me-2"></i>{{ cert }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted">No certificates available.</p>
+        {% endif %}
+      </div>
+
+      <!-- Activities Tab -->
+      <div class="tab-pane fade" id="activities" role="tabpanel" aria-labelledby="activities-tab">
+        {% if extra_curricular_activities %}
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">Extracurricular Activities</h5>
+            <ul class="list-group list-group-flush">
+              {% for activity in extra_curricular_activities %}
+              <li class="list-group-item text-secondary"><i class="fas fa-star text-warning me-2"></i>{{ activity }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted">No extracurricular activities listed.</p>
+        {% endif %}
+      </div>
+
+      <!-- Applications Tab -->
+      <div class="tab-pane fade" id="applications" role="tabpanel" aria-labelledby="applications-tab">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">Application Details</h5>
+            <p class="card-text">Details about the application process:</p>
+            <ol class="list-group list-group-numbered">
+              <li class="list-group-item"><strong>Gather Required Documents:</strong> Transcripts, recommendation letters, etc.</li>
+              <li class="list-group-item"><strong>Complete Online Application:</strong> [Link if available]</li>
+              <li class="list-group-item"><strong>Submit Application and Fees:</strong> If applicable.</li>
+              <li class="list-group-item"><strong>Await Notification:</strong> Selection results.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Info Tab -->
+      <div class="tab-pane fade" id="etc" role="tabpanel" aria-labelledby="etc-tab">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">Other Information</h5>
+            <p class="card-text"><strong>Motto:</strong> Excellence in Education</p>
+            <p class="card-text"><strong>Established:</strong> 1950</p>
+            <p class="card-text"><strong>Mission:</strong> Providing a nurturing learning environment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="subjects-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center text-primary fw-bold mb-4">Subjects Offered</h2>
+
+    {% if subjects %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for subject in subjects %}
+      <div class="col">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body text-center">
+            <i class="fas fa-book text-primary fa-3x mb-3"></i>
+            <h5 class="card-title fw-bold text-primary">{{ subject.name }}</h5>
+            {% if subject.description %}
+            <p class="card-text text-muted">{{ subject.description|truncatewords:20 }}</p>
+            {% else %}
+            <p class="card-text text-muted">No description available.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No subjects listed for this school.</p>
+    {% endif %}
+  </div>
+</section>
+
+
+<section class="map-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center text-primary fw-bold mb-4">{{ school.name }} Location</h2>
+    <div class="map-container position-relative overflow-hidden rounded shadow">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63342.53466475344!2d-13.23802535!3d8.46779095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x8211005015a07837!2sFreetown%2C%20Sierra%20Leone!5e0!3m2!1sen!2sus!4v1687348997898!5m2!1sen!2sus" 
+        width="100%" 
+        height="100%" 
+        class="border-0 rounded"
+        allowfullscreen=""
+        loading="lazy"
+        aria-label="School Location on Map">
+      </iframe>
+      <!-- Optional Info Box -->
+      <div class="info-box d-flex flex-column justify-content-center align-items-center p-3 position-absolute bottom-0 end-0 bg-white text-center shadow rounded">
+        <h5 class="text-secondary fw-bold mb-1">{{ school.name }}</h5>
+        <p class="text-muted mb-0">Find us on the map!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center text-primary fw-bold mb-4">Photo Gallery</h2>
+
+    {% if gallery_images %}
+    <div id="gallery-carousel" class="carousel slide position-relative shadow rounded" data-bs-ride="carousel">
+      <!-- Carousel Indicators -->
+      <div class="carousel-indicators">
+        {% for image in gallery_images %}
+        <button 
+          type="button" 
+          data-bs-target="#gallery-carousel" 
+          data-bs-slide-to="{{ forloop.counter0 }}" 
+          class="{% if forloop.first %}active{% endif %}" 
+          aria-current="{% if forloop.first %}true{% endif %}" 
+          aria-label="Slide {{ forloop.counter }}">
+        </button>
+        {% endfor %}
+      </div>
+
+      <!-- Carousel Images -->
+      <div class="carousel-inner rounded">
+        {% for image in gallery_images %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <img 
+            src="{{ image.file.url }}" 
+            alt="{{ image.title }}" 
+            class="d-block w-100 gallery-image">
+          <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-3 rounded">
+            <h5 class="text-white">{{ image.title }}</h5>
+            <p class="text-white">{{ image.description }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Navigation Controls -->
+      <button 
+        class="carousel-control-prev" 
+        type="button" 
+        data-bs-target="#gallery-carousel" 
+        data-bs-slide="prev">
+        <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button 
+        class="carousel-control-next" 
+        type="button" 
+        data-bs-target="#gallery-carousel" 
+        data-bs-slide="next">
+        <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No photos available for this school.</p>
+    {% endif %}
+  </div>
+</section>
+<section class="video-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center text-primary fw-bold mb-4">School Videos</h2>
+
+    {% if youtube_videos %}
+    <div class="row g-4">
+      {% for video in youtube_videos %}
+      <div class="col-md-6">
+        <div class="video-container position-relative rounded shadow">
+          <iframe 
+            src="https://www.youtube.com/embed/{{ video.youtube_url|cut:'https://www.youtube.com/watch?v=' }}" 
+            title="{{ video.title }}" 
+            class="rounded w-100"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen 
+            loading="lazy">
+          </iframe>
+          <p class="text-center mt-2 text-muted">{{ video.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No videos available for this school.</p>
+    {% endif %}
+  </div>
+</section>
+
+  <!-- Teachers Section -->
+  <section class="teachers-section py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center text-primary fw-bold mb-5">Our Dedicated Teachers</h2>
+      {% if teachers %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for teacher in teachers %}
+        <div class="col">
+          <div class="card teacher-card h-100 shadow border-0">
+            <div class="teacher-image-container">
+              {% if teacher.profile_image %}
+              <img src="{{ teacher.profile_image.url }}" alt="{{ teacher.user.get_full_name }}" class="img-fluid rounded-top">
+              {% else %}
+              <img src="{% static 'core/images/default_profile.png' %}" alt="Default Profile" class="img-fluid rounded-top">
+              {% endif %}
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-center text-primary fw-bold">{{ teacher.user.get_full_name }}</h5>
+              <p class="card-text"><strong>Specialization:</strong> {{ teacher.get_specialization_display }}</p>
+              <p class="card-text"><strong>Experience:</strong> {{ teacher.years_of_experience }} years</p>
+              <p class="card-text text-muted">{{ teacher.bio|truncatewords:20 }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-center text-muted">No teachers listed for this school.</p>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('enrollmentChart').getContext('2d');
+    const data = {{ enrollment_over_years|safe }};
+    const labels = data.map(item => item.year);
+    const chartData = data.map(item => item.enrollment);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Enrollment Trends',
+                data: chartData,
+                borderColor: '#20c997',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+
+  // Lazy loading using Lozad.js (you'll need to include the library)
+  document.addEventListener('DOMContentLoaded', function() {
+    const observer = lozad(); // lazy loads elements with default selector as '.lozad'
+    observer.observe();
+  });
+
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+   
+
+    /* Facilities Section Icons */
+    .facilities-section .card i {
+        font-size: 3rem;
+        color: #20c997;
+    }
+
+    /* Facilities Section Layout */
+    .facilities-section .card-title {
+        color: #20c997;
+        font-weight: bold;
+    }
+
+    /* Tabs Styling */
+    .tabs-section .nav-tabs .nav-link {
+        color: #20c997;
+        font-weight: bold;
+        border: none;
+    }
+    .tabs-section .nav-tabs .nav-link.active {
+        background-color: #20c997;
+        color: white;
+        border-radius: 0.5rem;
+    }
+     .map-container iframe {
+        border-radius: 8px;
+    }
+
+    /* Responsive Design Adjustments */
+    @media (max-width: 768px) {
+        .cta-section {
+            text-align: center;
+        }
+    }
+    .gallery-section img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .video-section {
+    padding: 3rem 0; /* Increased padding for better spacing */
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Aspect ratio 16:9 (9 / 16 * 100) */
+    height: 0;
+    overflow: hidden;
+    max-width: 800px; /* Optional: Set a maximum width for the video */
+    margin: 0 auto; /* Center the video */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
+}
+
+.
+.gallery-image {
+    object-fit: cover;
+    max-height: 400px; /* Set a maximum height */
+    width: 100%; /* Ensure image takes full width */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Adjust max-height for smaller screens as needed */
+@media (max-width: 992px) { /* Example breakpoint */
+    .gallery-image {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-image {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery-image {
+        max-height: 200px;
+    }
+}
+
+/* Style for carousel container to control overall width */
+#gallery-carousel {
+    max-width: 800px; /* Adjust as needed */
+    margin: 0 auto; /* Center the carousel */
+}
+/* Hero Section Styles */
+.hero-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+/* Contact Info */
+.hero-section .contact-info {
+  font-size: 1rem;
+  color: #333; /* Enhanced text color for better visibility */
+  gap: 1.5rem;
+}
+
+.hero-section .contact-info .contact-item {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.hero-section .contact-info i {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.hero-section .contact-info a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.hero-section .contact-info a:hover {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+/* Badge Styling */
+.hero-section .school-details .badge,
+.hero-section .exam-badges .badge {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Call-to-Action Buttons */
+.hero-section .btn {
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.hero-section .btn-primary {
+  background-color: #007bff;
+  border: none;
+}
+
+.hero-section .btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.hero-section .btn-outline-primary {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.hero-section .btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section .contact-info {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section .btn {
+    width: 100%; /* Full-width buttons on smaller screens */
+  }
+}
+
+.school-details {
+  flex-wrap: wrap; /* Ensure content wraps on smaller screens */
+  justify-content: space-between; /* Align school details evenly */
+}
+
+.exam-badges {
+    flex-wrap: wrap; /* Wrap exam badges on smaller screens */
+    justify-content: flex-start;
+}
+    /* Align exam badges to */
+
+.
+
+
+
+/* Tabs Section */
+.tabs-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+}
+
+.tabs-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+}
+
+/* Tab Navigation */
+.nav-tabs .nav-link {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #007bff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* Card Styles */
+.card {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.5rem;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #495057;
+}
+
+/* List Group */
+.list-group-item {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.list-group-item i {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  color: #6c757d;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .tabs-section {
+    padding: 2rem 1rem;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+    
+    /* Map Section */
+.map-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.map-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+/* Map Container */
+.map-container {
+  height: 400px;
+  border-radius: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Info Box */
+.info-box {
+  width: auto;
+  max-width: 200px;
+  background-color: #ffffff;
+  color: #6c757d;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  z-index: 2;
+}
+
+.info-box h5 {
+  font-size: 1rem;
+  color: #495057;
+}
+
+.info-box p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Iframe Styles */
+.map-container iframe {
+  border: none;
+  border-radius: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .map-section {
+    padding: 2rem 1rem;
+  }
+
+  .map-container {
+    height: 300px;
+  }
+
+  .info-box {
+    max-width: 150px;
+    padding: 0.75rem;
+  }
+
+  .info-box h5 {
+    font-size: 0.9rem;
+  }
+
+  .info-box p {
+    font-size: 0.8rem;
+  }
+}
+    
+    /* Gallery Section Styles */
+.gallery-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+}
+
+.gallery-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+/* Carousel Styles */
+#gallery-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.carousel-inner {
+  border-radius: 1rem;
+}
+
+.gallery-image {
+  object-fit: cover;
+  max-height: 500px;
+  width: 100%;
+  border-radius: 1rem;
+}
+
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.carousel-caption h5 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.carousel-caption p {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Carousel Indicators */
+.carousel-indicators [data-bs-target] {
+  background-color: #007bff;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+.carousel-indicators .active {
+  background-color: #0056b3;
+  width: 15px;
+  height: 15px;
+}
+
+/* Navigation Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+  background-color: #007bff;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .carousel-caption {
+    font-size: 0.9rem;
+  }
+
+  .carousel-caption h5 {
+    font-size: 1.2rem;
+  }
+
+  .gallery-image {
+    max-height: 300px;
+  }
+}
+    /* Video Section */
+.video-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.video-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* Aspect Ratio 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.video-section p {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Teachers Section */
+.teachers-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.teachers-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+.teacher-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-image-container {
+  overflow: hidden;
+}
+
+.teacher-image {
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.teacher-bio {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Related Schools Section */
+.related-schools-section {
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+}
+
+.related-schools-section h2 {
+  font-size: 2rem;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+.related-school-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.related-school-card .card-title {
+  font-size: 1rem;
+  color: #007bff;
+}
+
+.related-school-card .btn-outline-primary {
+  border-radius: 0.5rem;
+}
+
+
+
+
+    
+</style>
+{% endblock %}
+
+
+

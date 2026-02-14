@@ -1,0 +1,34 @@
+{% extends "base/index.html" %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row">
+        <!-- Left Sidebar for Navigation -->
+        <div class="col-md-3">
+            <div class="nav flex-column nav-pills" id="wizard-tabs" role="tablist">
+                {% for step, form in wizard.form_list %}
+                    <a class="nav-link {% if wizard.steps.current == step %}active{% endif %}" 
+                       id="tab-{{ step }}-tab" 
+                       data-bs-toggle="pill" 
+                       href="#tab-{{ step }}" 
+                       role="tab" 
+                       aria-controls="tab-{{ step }}" 
+                       aria-selected="{% if wizard.steps.current == step %}true{% else %}false{% endif %}">
+                        {{ form.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Content Area for Forms -->
+        <div class="col-md-9">
+            <div class="tab-content" id="wizard-tabs-content">
+                {% block wizard_content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

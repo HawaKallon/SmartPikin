@@ -1,0 +1,47 @@
+<h2 class="summary-title">Application Summary</h2>
+
+<div class="summary-section">
+    <h3>Personal Information</h3>
+    <ul>
+        <li><strong>First Name:</strong> {{ wizard.forms.personal_info.cleaned_data.first_name }}</li>
+        <li><strong>Middle Name:</strong> {{ wizard.forms.personal_info.cleaned_data.middle_name }}</li>
+        <li><strong>Last Name:</strong> {{ wizard.forms.personal_info.cleaned_data.last_name }}</li>
+        <li><strong>Date of Birth:</strong> {{ wizard.forms.personal_info.cleaned_data.date_of_birth }}</li>
+        <li><strong>Gender:</strong> {{ wizard.forms.personal_info.cleaned_data.gender }}</li>
+    </ul>
+</div>
+
+<div class="summary-section">
+    <h3>Guardian Information</h3>
+    <ul>
+        <li><strong>First Name:</strong> {{ wizard.forms.guardian_info.cleaned_data.guardian_first_name }}</li>
+        <li><strong>Last Name:</strong> {{ wizard.forms.guardian_info.cleaned_data.guardian_last_name }}</li>
+        <li><strong>Relationship:</strong> {{ wizard.forms.guardian_info.cleaned_data.guardian_relationship }}</li>
+        <li><strong>Contact Number:</strong> {{ wizard.forms.guardian_info.cleaned_data.guardian_contact_number }}</li>
+    </ul>
+</div>
+
+<div class="summary-section">
+    <h3>Contact Information</h3>
+    <ul>
+        <li><strong>Contact Number:</strong> {{ wizard.forms.contact_info.cleaned_data.contact_number }}</li>
+        <li><strong>Email Address:</strong> {{ wizard.forms.contact_info.cleaned_data.email_address }}</li>
+        <li><strong>Address Line 1:</strong> {{ wizard.forms.contact_info.cleaned_data.address_line_1 }}</li>
+        <li><strong>Address Line 2:</strong> {{ wizard.forms.contact_info.cleaned_data.address_line_2 }}</li>
+        <li><strong>City:</strong> {{ wizard.forms.contact_info.cleaned_data.city }}</li>
+        <li><strong>District:</strong> {{ wizard.forms.contact_info.cleaned_data.district }}</li>
+        <li><strong>Country:</strong> {{ wizard.forms.contact_info.cleaned_data.country }}</li>
+    </ul>
+</div>
+
+<div class="summary-section">
+    <h3>Documents</h3>
+    <ul>
+        <li><strong>Uploaded Files:</strong> {{ wizard.forms.document_upload.cleaned_data.documents }}</li>
+    </ul>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Submit Application</button>
+</form>

@@ -1,0 +1,256 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="application-wizard-container" style="padding-top: 80px;">
+    <!-- Sidebar Tabs (Left) -->
+    <div class="tabs-container" style="padding-top: 80px;">
+        <ul class="tabs-list">
+            <li class="tab-item {% if step == 'personal_info' %}active{% endif %}">
+                <a href="#personal_info" data-step="personal_info">Personal Info</a>
+            </li>
+            <li class="tab-item {% if step == 'contact_info' %}active{% endif %}">
+                <a href="#contact_info" data-step="contact_info">Contact Info</a>
+            </li>
+            <li class="tab-item {% if step == 'document_upload' %}active{% endif %}">
+                <a href="#document_upload" data-step="document_upload">Documents</a>
+            </li>
+            <li class="tab-item {% if step == 'guardian_info' %}active{% endif %}">
+                <a href="#guardian_info" data-step="guardian_info">Guardian Info</a>
+            </li>
+            <li class="tab-item {% if step == 'application_form' %}active{% endif %}">
+                <a href="#application_form" data-step="application_form">Application</a>
+            </li>
+            <li class="tab-item {% if step == 'summary' %}active{% endif %}">
+                <a href="#summary" data-step="summary">Summary</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Content Section (Right) -->
+    <div class="form-content-container">
+        <div class="form-step">
+            <h2 class="step-title">
+                {% block step_title %}
+                    {% if step == 'personal_info' %}
+                        Personal Information
+                    {% elif step == 'contact_info' %}
+                        Contact Information
+                    {% elif step == 'document_upload' %}
+                        Document Upload
+                    {% elif step == 'guardian_info' %}
+                        Guardian Information
+                    {% elif step == 'application_form' %}
+                        Application Form
+                    {% elif step == 'summary' %}
+                        Application Summary
+                    {% endif %}
+                {% endblock %}
+            </h2>
+
+{#            <form method="post" enctype="multipart/form-data">#}
+{#    {% csrf_token %}#}
+{#            {% csrf_token %}#}
+{#    {{ wizard.management_form }}#}
+{#    {{ form.as_p }}#}
+{#    <div class="form-actions">#}
+{#        {% if wizard.step != 'personal_info' %}#}
+{#            <button type="submit" name="previous" class="btn btn-secondary">Previous</button>#}
+{#        {% endif %}#}
+{#        {% if wizard.step != 'summary' %}#}
+{#            <button type="submit" name="next" class="btn btn-primary">Next</button>#}
+{#        {% else %}#}
+{#            <button type="submit" name="done" class="btn btn-success">Finish</button>#}
+{#        {% endif %}#}
+{#    </div>#}
+{#</form>#}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+    {{ form.as_p }}
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // JavaScript for dynamically showing the form based on clicked tab
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tabs-list .tab-item');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove 'active' class from all tabs
+                tabs.forEach(tab => tab.classList.remove('active'));
+
+                // Add 'active' class to the clicked tab
+                tab.classList.add('active');
+
+                // Get the step from the data-step attribute
+                const step = tab.querySelector('a').getAttribute('data-step');
+
+                // Hide all forms
+                const allForms = document.querySelectorAll('.form-step');
+                allForms.forEach(form => form.style.display = 'none');
+
+                // Show the form corresponding to the clicked tab
+                const activeForm = document.querySelector(`#${step}`);
+                if (activeForm) {
+                    activeForm.style.display = 'block';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block style %}
+	<style>
+    /* Base styles for the layout */
+.application-wizard-container {
+    display: flex;
+    margin: 30px;
+}
+
+.tabs-container {
+    width: 250px;
+    border-right: 2px solid #ccc;
+    padding-right: 20px;
+}
+
+.tabs-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tab-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tab-item a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    display: block;
+}
+
+.tab-item:hover {
+    background-color: #e1e1e1;
+}
+
+.tab-item.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.form-content-container {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.step-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form p {
+    margin-bottom: 20px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background-color: #ccc;
+}
+
+.btn-primary {
+    background-color: #007BFF;
+    color: white;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.summary-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.summary-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.summary-section h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #007bff;
+}
+
+.summary-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.summary-section ul li {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #555;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+
+    </style>
+{% endblock %}

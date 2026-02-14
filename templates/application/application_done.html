@@ -1,0 +1,387 @@
+{##}
+{#{% extends 'base/index.html' %}#}
+{##}
+{#{% block page_content %}#}
+{#<div class="application-success-wrapper" style="padding-top: 80px;">#}
+{#    <div class="success-header">#}
+{#        <h1>🎉 Application Submitted Successfully!</h1>#}
+{#        <p>Thank you for submitting your application. Here are the details:</p>#}
+{#    </div>#}
+{##}
+{#    <div class="application-details">#}
+{#        <!-- User Uploaded Photo -->#}
+{#        {% if application.applicant_image %}#}
+{#        <div class="photo-preview">#}
+{#            <img src="{{ application.applicant_image.url }}" alt="Uploaded Photo of {{ application.first_name }}" />#}
+{#        </div>#}
+{#        {% endif %}#}
+{##}
+{#        <!-- Application Details -->#}
+{#        <ul>#}
+{#            <li><strong>Application Code:</strong> {{ application.application_code }}</li>#}
+{#            <li><strong>Name:</strong> {{ application.first_name }} {{ application.last_name }}</li>#}
+{#            <li><strong>Date of Birth:</strong> {{ application.date_of_birth|date:"F j, Y" }}</li>#}
+{#            <li><strong>School:</strong> {{ application.school.name }}</li>#}
+{#            <li><strong>School Level:</strong> {{ application.get_school_level_display }}</li>#}
+{#            <li><strong>Class Level:</strong> {{ application.get_class_level_display }}</li>#}
+{#            <li><strong>Parent Contact:</strong> {{ application.parent_contact }}</li>#}
+{#            <li><strong>Address:</strong> {{ application.address }}</li>#}
+{#            <li><strong>Previous School:</strong> {{ application.previous_school }}</li>#}
+{#            <li><strong>Application Date:</strong> {{ application.application_date|date:"F j, Y, g:i a" }}</li>#}
+{#        </ul>#}
+{#    </div>#}
+{##}
+{#   {% if application.qr_code %}#}
+{#<div class="qr-code">#}
+{#    <p><strong>Scan this QR code to access your application details:</strong></p>#}
+{#    <img src="{{ application.qr_code.url }}" alt="QR Code for Application">#}
+{#</div>#}
+{#{% else %}#}
+{#<p>No QR Code available for this application.</p>#}
+{#{% endif %}#}
+{##}
+{##}
+{#    <!-- Uploaded Previous Result -->#}
+{#    {% if application.previous_result %}#}
+{#    <div class="uploaded-result">#}
+{#        <p><strong>Previous Result:</strong></p>#}
+{#        <a href="{{ application.previous_result.url }}" target="_blank" class="btn btn-primary">#}
+{#            View Uploaded Result#}
+{#        </a>#}
+{#    </div>#}
+{#    {% endif %}#}
+{##}
+{#    <!-- Action Buttons -->#}
+{#    <div class="action-buttons">#}
+{#        <a href="{% url 'core:school-list' %}" class="btn btn-primary">Submit Another Application</a>#}
+{#        <a href="{% url 'core:download_application' application.pk %}" class="btn btn-secondary">Download PDF</a>#}
+{#    </div>#}
+{#</div>#}
+{#{% endblock %}#}
+{##}
+{#{% block style %}#}
+{#<style>#}
+{#   .application-success-wrapper {#}
+{#    max-width: 800px;#}
+{#    margin: 50px auto;#}
+{#    padding: 30px;#}
+{#    background-color: #f4f9fc;#}
+{#    border-radius: 12px;#}
+{#    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);#}
+{#    font-family: 'Roboto', Arial, sans-serif;#}
+{#    text-align: center;#}
+{#    color: #2c3e50;#}
+{#}#}
+{##}
+{#/* Success Header */#}
+{#.success-header h1 {#}
+{#    font-size: 2.5rem;#}
+{#    color: #2ecc71;#}
+{#    margin-bottom: 15px;#}
+{#    font-weight: 700;#}
+{#}#}
+{##}
+{#.success-header p {#}
+{#    font-size: 1.2rem;#}
+{#    color: #34495e;#}
+{#    margin-bottom: 25px;#}
+{#}#}
+{##}
+{#/* Application Details */#}
+{#.application-details {#}
+{#    background: #ffffff;#}
+{#    padding: 25px;#}
+{#    border-radius: 10px;#}
+{#    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);#}
+{#    margin-bottom: 25px;#}
+{#}#}
+{##}
+{#.application-details ul {#}
+{#    list-style-type: none;#}
+{#    padding: 0;#}
+{#    margin: 0;#}
+{#    text-align: left;#}
+{#    max-width: 600px;#}
+{#    margin: 0 auto;#}
+{#}#}
+{##}
+{#.application-details ul li {#}
+{#    font-size: 1.1rem;#}
+{#    color: #2c3e50;#}
+{#    margin-bottom: 15px;#}
+{#    display: flex;#}
+{#    justify-content: space-between;#}
+{#    align-items: center;#}
+{#}#}
+{##}
+{#.application-details ul li strong {#}
+{#    color: #3498db;#}
+{#}#}
+{##}
+{#/* Photo Preview */#}
+{#.photo-preview {#}
+{#    margin: 30px auto;#}
+{#    max-width: 220px;#}
+{#    border: 6px solid #2ecc71;#}
+{#    border-radius: 12px;#}
+{#    overflow: hidden;#}
+{#    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);#}
+{#}#}
+{##}
+{#.photo-preview img {#}
+{#    width: 100%;#}
+{#    height: auto;#}
+{#    display: block;#}
+{#}#}
+{##}
+{#/* QR Code */#}
+{#.qr-code {#}
+{#    margin-top: 25px;#}
+{#    text-align: center;#}
+{#}#}
+{##}
+{#.qr-code p {#}
+{#    font-size: 1rem;#}
+{#    color: #34495e;#}
+{#    margin-bottom: 10px;#}
+{#}#}
+{##}
+{#.qr-code img {#}
+{#    max-width: 200px;#}
+{#    height: auto;#}
+{#    border-radius: 10px;#}
+{#    border: 3px solid #3498db;#}
+{#    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);#}
+{#}#}
+{##}
+{#/* Uploaded Result */#}
+{#.uploaded-result {#}
+{#    margin-top: 30px;#}
+{#    text-align: center;#}
+{#}#}
+{##}
+{#.uploaded-result a {#}
+{#    display: inline-block;#}
+{#    margin-top: 10px;#}
+{#    padding: 12px 20px;#}
+{#    font-size: 1rem;#}
+{#    color: #ffffff;#}
+{#    background-color: #3498db;#}
+{#    border-radius: 5px;#}
+{#    text-decoration: none;#}
+{#    transition: all 0.3s ease;#}
+{#}#}
+{##}
+{#.uploaded-result a:hover {#}
+{#    background-color: #2980b9;#}
+{#    transform: translateY(-2px);#}
+{#    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);#}
+{#}#}
+{##}
+{#/* Action Buttons */#}
+{#.action-buttons {#}
+{#    display: flex;#}
+{#    justify-content: center;#}
+{#    gap: 20px;#}
+{#    margin-top: 30px;#}
+{#}#}
+{##}
+{#.btn {#}
+{#    padding: 14px 24px;#}
+{#    border: none;#}
+{#    border-radius: 5px;#}
+{#    font-size: 1rem;#}
+{#    text-decoration: none;#}
+{#    color: white;#}
+{#    cursor: pointer;#}
+{#    transition: all 0.3s ease;#}
+{#    text-align: center;#}
+{#}#}
+{##}
+{#.btn-primary {#}
+{#    background-color: #3498db;#}
+{#}#}
+{##}
+{#.btn-secondary {#}
+{#    background-color: #95a5a6;#}
+{#}#}
+{##}
+{#.btn:hover {#}
+{#    transform: translateY(-3px);#}
+{#    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);#}
+{#}#}
+{##}
+{#</style>#}
+{#{% endblock %}#}
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="application-success-wrapper">
+    <div class="success-header">
+        <h1>🎉 Application Submitted Successfully!</h1>
+        <p>Thank you for submitting your application. Here are the details:</p>
+    </div>
+    <div class="application-details">
+        {% if application.applicant_image %}
+        <div class="photo-preview">
+            <img src="{{ application.applicant_image.url }}" alt="Uploaded Photo of {{ application.first_name }}" />
+        </div>
+        {% endif %}
+        <ul>
+            <li><strong>Application Code:</strong> {{ application.application_code }}</li>
+            <li><strong>Name:</strong> {{ application.first_name }} {{ application.last_name }}</li>
+            <li><strong>Date of Birth:</strong> {{ application.date_of_birth|date:"F j, Y" }}</li>
+            <li><strong>School:</strong> {{ application.school.name }}</li>
+            <li><strong>School Level:</strong> {{ application.get_school_level_display }}</li>
+            <li><strong>Class Level:</strong> {{ application.get_class_level_display }}</li>
+            <li><strong>Parent Contact:</strong> {{ application.parent_contact }}</li>
+            <li><strong>Address:</strong> {{ application.address }}</li>
+            <li><strong>Previous School:</strong> {{ application.previous_school }}</li>
+            <li><strong>Application Date:</strong> {{ application.application_date|date:"F j, Y, g:i a" }}</li>
+        </ul>
+    </div>
+    {% if application.qr_code %}
+    <div class="qr-code">
+        <p><strong>Scan this QR code to access your application details:</strong></p>
+        <img src="{{ application.qr_code.url }}" alt="QR Code for Application">
+    </div>
+    {% else %}
+    <p>No QR Code available for this application.</p>
+    {% endif %}
+    {% if application.previous_result %}
+    <div class="uploaded-result">
+        <p><strong>Previous Result:</strong></p>
+        <a href="{{ application.previous_result.url }}" target="_blank" class="btn btn-primary">
+            View Uploaded Result
+        </a>
+    </div>
+    {% endif %}
+    <div class="action-buttons">
+        <a href="{% url 'core:school-list' %}" class="btn btn-primary">Submit Another Application</a>
+        <a href="{% url 'core:download_application' application.pk %}" class="btn btn-secondary">Download PDF</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Root Variables for Theme Colors */
+    :root {
+        --primary-color: #6c63ff;
+        --secondary-color: #ff6584;
+        --background-gradient: linear-gradient(135deg, #6c63ff, #ff6584);
+        --text-color: #34495e;
+    }
+
+    /* Wrapper */
+    .application-success-wrapper {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 40px;
+        border-radius: 20px;
+        background: var(--background-gradient);
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1.5s ease-out;
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+    }
+
+    /* Header Section */
+    .success-header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .success-header p {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+    }
+
+    /* Details Section */
+    .application-details {
+        background: white;
+        color: var(--text-color);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-align: left;
+        margin-bottom: 30px;
+    }
+
+    .application-details ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .application-details ul li {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .application-details ul li strong {
+        color: var(--primary-color);
+    }
+
+    /* Photo Preview */
+    .photo-preview {
+        margin: 20px auto;
+        border: 6px solid var(--secondary-color);
+        border-radius: 15px;
+        overflow: hidden;
+        max-width: 240px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .photo-preview img {
+        width: 100%;
+        display: block;
+    }
+
+    /* QR Code */
+    .qr-code img {
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+    }
+
+    .btn-secondary {
+        background-color: var(--secondary-color);
+    }
+
+    .btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+{% endblock %}

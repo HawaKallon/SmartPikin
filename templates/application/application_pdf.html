@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application PDF</title>
+    <style>
+        /* Root Variables for Theme */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #2980b9;
+            --background-color: #f9f9f9;
+        }
+
+        /* General Reset */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--secondary-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+        }
+
+        /* Container */
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .header img {
+            max-width: 100px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* Details */
+        .details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f4f6f7;
+            border-radius: 10px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .details ul li {
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .details ul li strong {
+            color: var(--accent-color);
+        }
+
+        .details ul li span {
+            color: var(--secondary-color);
+        }
+
+        /* Images */
+        img.application-img,
+        img.qr-code {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        img.qr-code {
+            max-width: 150px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #95a5a6;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            {% if logo_url %}
+            <img src="{{ logo_url }}" alt="Logo">
+            {% endif %}
+            <h1>Application Details</h1>
+            <p>Generated on {{ generated_date }}</p>
+        </div>
+
+        <!-- Application Image -->
+        {% if application_image_base64 %}
+        <img src="{{ application_image_base64 }}" alt="Application Image" class="application-img">
+        {% endif %}
+
+        <!-- QR Code -->
+        {% if qr_code_base64 %}
+        <img src="{{ qr_code_base64 }}" alt="QR Code" class="qr-code">
+        {% endif %}
+
+        <!-- Details Section -->
+        <div class="details">
+            <ul>
+                <li><strong>Application Code:</strong> <span>{{ application.application_code }}</span></li>
+                <li><strong>Name:</strong> <span>{{ application.first_name }} {{ application.last_name }}</span></li>
+                <li><strong>Date of Birth:</strong> <span>{{ application.date_of_birth|date:"F j, Y" }}</span></li>
+                <li><strong>School:</strong> <span>{{ application.school.name }}</span></li>
+                <li><strong>School Level:</strong> <span>{{ application.get_school_level_display }}</span></li>
+                <li><strong>Class Level:</strong> <span>{{ application.get_class_level_display }}</span></li>
+                <li><strong>Parent Contact:</strong> <span>{{ application.parent_contact }}</span></li>
+                <li><strong>Address:</strong> <span>{{ application.address }}</span></li>
+                <li><strong>Previous School:</strong> <span>{{ application.previous_school }}</span></li>
+                <li><strong>Application Date:</strong> <span>{{ application.application_date|date:"F j, Y, g:i a" }}</span></li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Thank you for your application!</p>
+        </div>
+    </div>
+</body>
+</html>

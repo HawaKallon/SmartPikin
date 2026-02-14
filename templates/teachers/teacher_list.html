@@ -1,0 +1,369 @@
+
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block page_content %}
+<div class="container-fluid main-content" style="padding-top: 80px;">
+
+
+    <div class="container-fluid">
+    <section class="hero" style="background-image: url('{% static 'core/images/edu1.png' %}'); background-size: cover; background-position: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; text-align: center;">
+    <!-- Overlay -->
+    <div class="overlay" style="background: rgba(0, 0, 0, 0.6); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+    <!-- Hero Content -->
+    <div class="hero-content" style="z-index: 2;">
+        <h1 class="display-4 fw-bold" style="color: #FFD700; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);">
+            Find the Best Teachers in Sierra Leone
+        </h1>
+        <p class="lead" style="color: #00FFFF; text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);">
+            Discover qualified teachers to inspire and guide your learning journey. Connect with educators who are ready to make a difference.
+        </p>
+        <a href="/teachers" class="btn btn-success btn-lg mt-3 px-5 py-3" style="font-size: 1.25rem;">
+            Search for Teachers
+        </a>
+    </div>
+</section>
+    
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <input type="text" id="search" name="search" class="search-bar" placeholder="Search Teachers..." value="{{ search_query }}">
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar (Filters) -->
+            <div class="col-lg-3 col-md-4 mb-4">
+                <div class="filter-section">
+                    <form id="filter-form" class="form-inline">
+                        <!-- Teacher Status Filter -->
+                        <div class="form-group mb-3">
+                            <label for="status_filter" class="form-label">Status</label>
+                            <select id="status_filter" name="status" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="private" {% if status_filter == 'private' %}selected{% endif %}>Private</option>
+                                <option value="government" {% if status_filter == 'government' %}selected{% endif %}>Government</option>
+                            </select>
+                        </div>
+
+                        <!-- School Filter -->
+                        <div class="form-group mb-3">
+                            <label for="school_filter" class="form-label">School</label>
+                            <select id="school_filter" name="school" class="form-control">
+                                <option value="">All Schools</option>
+                                {% for school in schools %}
+                                <option value="{{ school.name }}" {% if selected_school == school.name %}selected{% endif %}>{{ school.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Specialization Filter -->
+<div class="form-group mb-3">
+    <label for="specialization_filter" class="form-label">Specialization</label>
+    <select id="specialization_filter" name="specialization" class="form-control">
+        <option value="">All Specializations</option>
+        {% for value, display in specializations %}
+        <option value="{{ value }}" {% if selected_specialization == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Certification Filter -->
+<div class="form-group mb-3">
+    <label for="certification_filter" class="form-label">Certification</label>
+    <select id="certification_filter" name="certification" class="form-control">
+        <option value="">All Certifications</option>
+        {% for value, display in certifications %}
+        <option value="{{ value }}" {% if selected_certification == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+
+                        <!-- Subject Filter -->
+                        <div class="form-group mb-3">
+                            <label for="subject_filter" class="form-label">Subject</label>
+                            <input type="text" id="subject_filter" name="subject" class="form-control" placeholder="Search Subject" value="{{ selected_subject }}">
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="form-group mb-3">
+                            <label for="sort_by" class="form-label">Sort By</label>
+                            <select id="sort_by" name="sort_by" class="form-control">
+                                <option value="user__first_name" {% if sort_by == 'user__first_name' %}selected{% endif %}>First Name</option>
+                                <option value="years_of_experience" {% if sort_by == 'years_of_experience' %}selected{% endif %}>Experience</option>
+                            </select>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="form-group mb-3">
+                            <button type="button" id="reset-btn" class="btn btn-secondary w-100">Reset Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Teacher List -->
+            <div class="col-lg-9 col-md-8">
+                <div id="teacher-list-container" class="row">
+                    {% include 'teachers/teacher_list_partial.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterForm = document.getElementById('filter-form');
+    const searchInput = document.getElementById('search');
+    const resetButton = document.getElementById('reset-btn');
+
+    function sendAjaxRequest() {
+        const formData = new FormData(filterForm);
+        formData.set('search', searchInput.value);
+        const queryString = new URLSearchParams(formData).toString();
+
+        fetch(`?${queryString}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('teacher-list-container').innerHTML = data.html;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Event listeners for filters and search
+    filterForm.addEventListener('input', sendAjaxRequest);
+    searchInput.addEventListener('input', sendAjaxRequest);
+
+    // Reset filters
+    resetButton.addEventListener('click', function() {
+        filterForm.reset();
+        searchInput.value = '';
+        sendAjaxRequest();
+    });
+});
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+/* General Styles */
+:root {
+    --primary-color: #20c997;
+    --secondary-color: #f8f9fa;
+    --light-gray: #e9ecef;
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background-color: var(--secondary-color);
+}
+
+.search-bar {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: box-shadow var(--transition-speed), border-color var(--transition-speed);
+}
+
+.search-bar:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+.filter-section {
+    background: var(--light-gray);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section label {
+    font-weight: bold;
+}
+
+.filter-section select {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+}
+
+#teacher-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+ /* Global Styles */
+.teachers-row {
+    margin-top: 20px;
+}
+
+/* Teacher Item Styles */
+.teacher-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.teacher-item:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+.teacher-item .teacher-img {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.teacher-item .teacher-img img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    transition: transform 0.5s ease;
+}
+
+.teacher-item .teacher-img:hover img {
+    transform: scale(1.05);
+}
+
+/* Teacher Content Styles */
+.teacher-item .teacher-content {
+    flex-grow: 1;
+}
+
+.teacher-item .teacher-content h4 {
+    font-size: 22px;
+    color: #333;
+}
+
+.teacher-item .teacher-content p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.teacher-item .teacher-content a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.teacher-item .teacher-content a:hover {
+    color: #0056b3;
+}
+
+/* Bio Section Styles */
+.teacher-bio {
+    display: none;
+    font-size: 14px;
+    color: #777;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    margin-top: 15px;
+}
+
+.teacher-bio.show {
+    display: block;
+}
+
+/* Pagination Styles */
+.pagination .btn {
+    margin: 0 5px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .col-lg-6 {
+        flex: 0 0 50%;
+    }
+}
+
+@media (max-width: 600px) {
+    .col-lg-6 {
+        flex: 0 0 100%;
+    }
+}
+/* Rounded Badge Styles for Specializations and Certifications */
+.specialization-badge,
+.certification-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: var(--primary-color);
+    border-radius: 50px;
+    margin-bottom: 8px;
+    transition: transform var(--transition-speed), background-color var(--transition-speed);
+}
+ .tutor-rating .fa-star {
+        color: #ffd700;
+    }
+
+.specialization-badge:hover,
+.certification-badge:hover {
+    background: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: var(--primary-color);
+    color: #fff;
+    border-bottom: none;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+/* Button for Show Bio */
+.show-bio-btn {
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+
+.show-bio-btn:hover {
+    background-color: #0056b3;
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+
+</style>
+{% endblock %}

@@ -1,0 +1,230 @@
+{#{% extends 'base/index.html' %}#}
+{##}
+{#{% block page_content %}#}
+{#<div class="container mt-5" style="padding-top: 80px;">#}
+{#    <div class="card shadow-lg">#}
+{#        <div class="card-body">#}
+{#            <h1 class="text-center mb-4">Summarize Content</h1>#}
+{#            <p class="text-center mb-4">Paste your content or upload a file, and get a concise summary.</p>#}
+{#            #}
+{#            <form method="POST" enctype="multipart/form-data">#}
+{#                {% csrf_token %}#}
+{#                #}
+{#                <!-- Content Textarea -->#}
+{#                <div class="mb-3">#}
+{#                    <label for="content" class="form-label">Content</label>#}
+{#                    <textarea class="form-control" name="content" id="content" rows="5" placeholder="Paste content here" required></textarea>#}
+{#                </div>#}
+{##}
+{#                <!-- File Upload -->#}
+{#                <div class="mb-3">#}
+{#                    <label for="file" class="form-label">Upload a File</label>#}
+{#                    <input class="form-control" type="file" name="file" id="file" accept=".pdf, .txt">#}
+{#                </div>#}
+{##}
+{#                <!-- Submit Button -->#}
+{#                <div class="d-flex justify-content-center">#}
+{#                    <button type="submit" class="btn btn-primary px-5 py-2">Summarize</button>#}
+{#                </div>#}
+{#            </form>#}
+{##}
+{#            {% if summary %}#}
+{#            <!-- Display Summary -->#}
+{#            <div class="mt-5">#}
+{#                <h3 class="text-center mb-3">Summary as HTML</h3>#}
+{#                <div class="content border p-3 rounded" style="white-space: pre-wrap;">#}
+{#                    {{ summary_html|safe }}  <!-- Render HTML version of summary -->#}
+{#                </div>#}
+{##}
+{#                <!-- PDF Download Link -->#}
+{#                <div class="d-flex justify-content-center mt-3">#}
+{#                    <a href="{% url 'ai_core:download_summarized_content_pdf' summarized_content_id %}" #}
+{#                       class="btn btn-success px-4 py-2" download>Download as PDF</a>#}
+{#                </div>#}
+{#            </div>#}
+{#            {% endif %}#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{##}
+{#{% endblock %}#}
+{##}
+{#{% block style %}#}
+{#	<style>#}
+{#    /* Custom CSS for improved spacing and styling */#}
+{#.card {#}
+{#    border-radius: 10px;#}
+{#    background-color: #f8f9fa;#}
+{#}#}
+{##}
+{#.content {#}
+{#    background-color: #ffffff;#}
+{#    border: 1px solid #dee2e6;#}
+{#    border-radius: 5px;#}
+{#    padding: 15px;#}
+{#    font-family: 'Arial', sans-serif;#}
+{#    font-size: 16px;#}
+{#    color: #333;#}
+{#}#}
+{##}
+{#button, a {#}
+{#    border-radius: 5px;#}
+{#    font-weight: bold;#}
+{#}#}
+{##}
+{#textarea {#}
+{#    resize: vertical;#}
+{#}#}
+{##}
+{#/* Additional styles for download button */#}
+{#a.btn-success {#}
+{#    text-transform: uppercase;#}
+{#}#}
+{##}
+{#    </style>#}
+{#{% endblock %}#}
+
+{% extends 'base/index.html' %}
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px;">
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <h1 class="text-center mb-4 text-primary font-weight-bold">Transform Your Content, Ignite Your Creativity</h1>
+            <p class="text-center mb-4 text-muted">Paste your content or upload a file, and get an insightful summary that sparks new ideas!</p>
+
+            <!-- Form -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- Content Textarea -->
+                <div class="mb-4">
+                    <label for="content" class="form-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+                            <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                        </svg> Content
+                    </label>
+                    <textarea class="form-control" name="content" id="content" rows="5" placeholder="Paste content here" required></textarea>
+                </div>
+
+                <!-- File Upload -->
+                <div class="mb-4">
+                    <label for="file" class="form-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
+                            <path d="M8 0a4 4 0 0 0-4 4c0 1.57.89 2.92 2.16 3.59a4.018 4.018 0 0 0-1.16 3.41A4.992 4.992 0 0 0 0 12a5 5 0 0 0 10 0h3a4 4 0 0 0 0-8H8zm-3 4a3 3 0 0 1 6 0c0 1.057-.625 1.978-1.55 2.44.63.497 1.05 1.278 1.05 2.06a3 3 0 1 1-6 0c0-.783.421-1.563 1.05-2.06C4.625 5.978 4 5.057 4 4z"/>
+                        </svg> Upload a File
+                    </label>
+                    <input class="form-control" type="file" name="file" id="file" accept=".pdf, .txt">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-center mb-4">
+                    <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill">Summarize</button>
+                </div>
+            </form>
+
+            {% if summary %}
+            <!-- Display Summary -->
+            <div class="mt-5">
+                <h3 class="text-center mb-3 text-success">Your Concise Summary</h3>
+                <div class="content border p-4 rounded-lg" style="white-space: pre-wrap;">
+                    {{ summary_html|safe }}  <!-- Render HTML version of summary -->
+                </div>
+
+                <!-- PDF Download Link -->
+                <div class="d-flex justify-content-center mt-3">
+                    <a href="{% url 'ai_core:download_summarized_content_pdf' summarized_content_id %}" class="btn btn-success px-4 py-2 rounded-pill" download>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                            <path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zM7 1h2v5h4l-5 5-5-5h4z"/>
+                        </svg> Download as PDF
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Optimized and modernized styles */
+    .card {
+        border-radius: 15px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    .card-body {
+        font-family: 'Arial', sans-serif;
+    }
+
+    .text-primary {
+        color: #007bff !important;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    .content {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        color: #333;
+        font-size: 16px;
+        font-family: 'Arial', sans-serif;
+    }
+
+    textarea {
+        resize: vertical;
+        font-size: 16px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .btn {
+        font-weight: bold;
+        border-radius: 50px;
+        padding: 12px 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover, .btn-primary:hover {
+        filter: brightness(1.1);
+    }
+
+    /* File input and button styles */
+    input[type="file"] {
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .mb-4 {
+        margin-bottom: 20px;
+    }
+
+    .rounded-pill {
+        border-radius: 50px !important;
+    }
+
+    .d-flex {
+        display: flex;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

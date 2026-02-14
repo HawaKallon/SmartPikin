@@ -1,0 +1,159 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% block page_content %}
+<!-- Hero Section with Background Image -->
+<section class="hero" style="background-image: url('{% static 'core/images/salone.jpg' %}'); background-size: cover; background-position: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; position: relative;">
+    <div class="overlay"></div>
+    <div class="hero-content">
+        <h1>Bai Bureh - History AI Assistant</h1>
+        <p class="lead">Helping Senior Secondary Art Students answer questions based on the WAEC Syllabus and West African History.</p>
+    </div>
+</section>
+
+<!-- Content Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Query Form Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <form id="query-form" method="POST" action="{% url 'ai_core:query' %}">
+                            {% csrf_token %}
+                            <div id="question-fields">
+                                <!-- Initial Input Field -->
+                                <div class="mb-3 question-group">
+                                    <label for="query-1" class="form-label fs-5">Ask your question</label>
+                                    <input type="text" class="form-control query-input" id="query-1" name="query[]" placeholder="Enter your question">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="add-question" class="btn btn-outline-secondary">+ Add Another Question</button>
+                                <button type="submit" class="btn btn-primary">Get Answers</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Section -->
+        {% if queries_and_answers %}
+        <div class="mt-5">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="h5">Your Questions and Answers:</h3>
+                    <div class="content">
+                        {% for qa in queries_and_answers %}
+{#                        <div class="qa-pair mb-4 p-3 bg-white rounded shadow-sm">#}
+{#                            <h5 class="query-title">Q: {{ qa.query }}</h5>#}
+{#                            <p class="answer-content">A: {{ qa.answer|safe }}</p>#}
+{#                        </div>#}
+                            <div class="qa-pair mb-4 p-3 bg-white rounded shadow-sm">
+    <h5 class="query-title">Q: {{ qa.query }}</h5>
+    <p class="answer-content" id="answer-{{ forloop.counter }}">A: {{ qa.answer|safe }}</p>
+    <button type="button" class="btn btn-sm btn-secondary play-answer" data-answer-id="answer-{{ forloop.counter }}">
+        Play Answer
+    </button>
+</div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Hero Section Styles */
+    .hero {
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+    }
+    .hero .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 1;
+    }
+    .hero .hero-content {
+        z-index: 2;
+        position: relative;
+    }
+    /* Button Styles */
+    .btn-primary {
+        background-color: #008000;
+        border-color: #008000;
+    }
+    .btn-primary:hover {
+        background-color: #006400;
+    }
+    .btn-outline-secondary {
+        color: #006400;
+        border-color: #006400;
+    }
+    .btn-outline-secondary:hover {
+        background-color: #006400;
+        color: #fff;
+    }
+    /* Answer Section */
+    .qa-pair {
+        border-left: 4px solid #008000;
+    }
+</style>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addQuestionButton = document.getElementById('add-question');
+        const questionFields = document.getElementById('question-fields');
+        let questionCount = 1;
+
+        addQuestionButton.addEventListener('click', () => {
+            questionCount++;
+            const newQuestionGroup = document.createElement('div');
+            newQuestionGroup.classList.add('mb-3', 'question-group');
+            newQuestionGroup.innerHTML = `
+                <label for="query-${questionCount}" class="form-label fs-5">Ask your question</label>
+                <input type="text" class="form-control query-input" id="query-${questionCount}" name="query[]" placeholder="Enter your question">
+            `;
+            questionFields.appendChild(newQuestionGroup);
+        });
+
+        // Voice Output for Answers
+        document.querySelectorAll('.play-answer').forEach(button => {
+            button.addEventListener('click', () => {
+                const answerId = button.getAttribute('data-answer-id');
+                const answerElement = document.getElementById(answerId);
+
+                if (!answerElement) {
+                    console.error(`Answer element with ID "${answerId}" not found.`);
+                    return;
+                }
+
+                const answerContent = answerElement.innerText; // Get the plain text answer
+                console.log('Answer Content:', answerContent); // Debugging line
+
+                // Use ResponsiveVoice to speak the answer
+                if (typeof responsiveVoice !== 'undefined') {
+                    responsiveVoice.speak(answerContent, "UK English Male", {
+                        rate: 1, // Adjust the speed of the speech (1 is normal speed)
+                        pitch: 1, // Adjust the pitch of the speech (1 is normal pitch)
+                        volume: 1 // Adjust volume (1 is maximum)
+                    });
+                } else {
+                    alert('ResponsiveVoice is not available.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

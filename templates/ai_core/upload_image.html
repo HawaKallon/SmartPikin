@@ -1,0 +1,207 @@
+{#{% load static %}#}
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{#    <title>Upload Report Card</title>#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">#}
+{#    <style>#}
+{#        body {#}
+{#            background-color: #f4f7fc;#}
+{#        }#}
+{##}
+{#        .container {#}
+{#            max-width: 600px;#}
+{#            margin-top: 50px;#}
+{#        }#}
+{##}
+{#        .card {#}
+{#            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);#}
+{#            border-radius: 8px;#}
+{#        }#}
+{##}
+{#        .card-header {#}
+{#            background-color: #00d1b2;#}
+{#            color: white;#}
+{#        }#}
+{##}
+{#        .card-header-title {#}
+{#            font-size: 1.5rem;#}
+{#        }#}
+{##}
+{#        .button.is-primary {#}
+{#            background-color: #00d1b2;#}
+{#            border-color: #00d1b2;#}
+{#        }#}
+{##}
+{#        .button.is-primary:hover {#}
+{#            background-color: #00c4a7;#}
+{#            border-color: #00c4a7;#}
+{#        }#}
+{##}
+{#        .notification {#}
+{#            background-color: #f5f5f5;#}
+{#            border: 1px solid #00d1b2;#}
+{#            border-radius: 8px;#}
+{#        }#}
+{##}
+{#        .image-preview {#}
+{#            margin-top: 20px;#}
+{#        }#}
+{##}
+{#        .image-preview img {#}
+{#            max-width: 100%;#}
+{#            border-radius: 8px;#}
+{#        }#}
+{#    </style>#}
+{#</head>#}
+{#<body>#}
+{##}
+{#    <div class="container">#}
+{#        <div class="card">#}
+{#            <header class="card-header">#}
+{#                <p class="card-header-title">#}
+{#                    Upload Report Card Image#}
+{#                </p>#}
+{#            </header>#}
+{#            <div class="card-content">#}
+{#                <form method="post" enctype="multipart/form-data">#}
+{#                    {% csrf_token %}#}
+{#                    <div class="field">#}
+{#                        <label class="label">Student Name</label>#}
+{#                        <div class="control">#}
+{#                            <input class="input" type="text" name="student_name" placeholder="Enter the student's name" required>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="field">#}
+{#                        <label class="label">Upload Report Card</label>#}
+{#                        <div class="control">#}
+{#                            <input class="input" type="file" name="image" accept="image/png, image/jpeg" required>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="field">#}
+{#                        <div class="control">#}
+{#                            <button class="button is-primary is-fullwidth" type="submit">Upload</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </form>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        {% if image_description %}#}
+{#        <div class="notification is-success">#}
+{#           <div id="analysis">#}
+{#    <h2>Report Card Analysis</h2>#}
+{#    <p><strong>Student Name:</strong> {{ student_name }}</p>#}
+{#    <p><strong>Attendance:</strong> {{ attendance }}</p>#}
+{#    <p><strong>Scores:</strong></p>#}
+{#    <ul>#}
+{#        <li>Math: {{ math_score }}</li>#}
+{#        <li>English: {{ english_score }}</li>#}
+{#        <li>Science: {{ science_score }}</li>#}
+{#        <!-- Add more subjects dynamically -->#}
+{#    </ul>#}
+{#    <p><strong>Teacher's Comments:</strong> {{ comments }}</p>#}
+{#</div>#}
+{##}
+{#            #}
+{#        </div>#}
+{#        {% endif %}#}
+{#    </div>#}
+{##}
+{#</body>#}
+{#</html>#}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Report Card</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #f4f7fc;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .card-header {
+            background-color: #00d1b2;
+            color: white;
+        }
+        .card-header-title {
+            font-size: 1.5rem;
+        }
+        .button.is-primary {
+            background-color: #00d1b2;
+            border-color: #00d1b2;
+        }
+        .button.is-primary:hover {
+            background-color: #00c4a7;
+            border-color: #00c4a7;
+        }
+        .notification {
+            background-color: #f5f5f5;
+            border: 1px solid #00d1b2;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">
+                Upload Report Card Image
+            </p>
+        </header>
+        <div class="card-content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label">Student Name</label>
+                    <div class="control">
+                        <input class="input" type="text" name="student_name" placeholder="Enter the student's name" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Upload Report Card</label>
+                    <div class="control">
+                        <input class="input" type="file" name="image" accept="image/png, image/jpeg" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-fullwidth" type="submit">Upload</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if image_description %}
+    <div class="notification is-success">
+        <h2 class="title is-4">Report Card Analysis</h2>
+        <div id="analysis">
+            {{ image_description|safe }}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

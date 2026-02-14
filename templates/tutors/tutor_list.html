@@ -1,0 +1,341 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block page_content %}
+<div class="container-fluid main-content" style="padding-top: 80px;">
+    <div class="container-fluid">
+    <section class="hero" style="background-image: url('{% static 'core/images/edu1.png' %}'); background-size: cover; background-position: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; text-align: center;">
+    <!-- Overlay -->
+    <div class="overlay" style="background: rgba(0, 0, 0, 0.6); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+    <!-- Hero Content -->
+    <div class="hero-content" style="z-index: 2;">
+        <h1 class="display-4 fw-bold" style="color: #FFD700; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);">
+            Find the Best Tutors in Sierra Leone
+        </h1>
+        <p class="lead" style="color: #00FFFF; text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);">
+            Discover qualified tutors to inspire and guide your learning journey. Connect with educators who are ready to make a difference.
+        </p>
+        
+    </div>
+</section>
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    class="search-bar" 
+                    placeholder="Search Tutors..." 
+                    value="{{ search_query }}" 
+                />
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar (Filters) -->
+            <div class="col-lg-3 col-md-4 mb-4">
+                <div class="filter-section">
+                    <form id="filter-form">
+                        <!-- Tutor Status Filter -->
+                        <div class="form-group mb-3">
+                            <label for="status_filter" class="form-label">Status</label>
+                            <select id="status_filter" name="status" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="available" {% if status_filter == 'available' %}selected{% endif %}>Available</option>
+                                <option value="busy" {% if status_filter == 'busy' %}selected{% endif %}>Busy</option>
+                            </select>
+                        </div>
+
+                        <!-- School Filter -->
+                        <div class="form-group mb-3">
+                            <label for="school_filter" class="form-label">School</label>
+                            <select id="school_filter" name="school" class="form-control">
+                                <option value="">All Schools</option>
+                                {% for school in schools %}
+                                <option value="{{ school.name }}" {% if selected_school == school.name %}selected{% endif %}>
+                                    {{ school.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Specialization Filter -->
+                        <div class="form-group mb-3">
+                            <label for="specialization_filter" class="form-label">Specialization</label>
+                            <select id="specialization_filter" name="specialization" class="form-control">
+                                <option value="">All Specializations</option>
+                                {% for value, display in specializations %}
+                                <option value="{{ value }}" {% if selected_specialization == value %}selected{% endif %}>
+                                    {{ display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Subject Filter -->
+                        <div class="form-group mb-3">
+                            <label for="subject_filter" class="form-label">Subject</label>
+                            <input 
+                                type="text" 
+                                id="subject_filter" 
+                                name="subject" 
+                                class="form-control" 
+                                placeholder="Search Subject" 
+                                value="{{ selected_subject }}" 
+                            />
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="form-group mb-3">
+                            <label for="sort_by" class="form-label">Sort By</label>
+                            <select id="sort_by" name="sort_by" class="form-control">
+                                <option value="user__first_name" {% if sort_by == 'user__first_name' %}selected{% endif %}>First Name</option>
+                                <option value="years_of_experience" {% if sort_by == 'years_of_experience' %}selected{% endif %}>
+                                    Experience
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="form-group mb-3">
+                            <button type="button" id="reset-btn" class="btn btn-secondary w-100">Reset Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tutor List -->
+            <div class="col-lg-9 col-md-8">
+                <div id="tutor-list-container" class="row">
+                    {% include 'tutors/tutor_list_partial.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterForm = document.getElementById('filter-form');
+    const searchInput = document.getElementById('search');
+    const resetButton = document.getElementById('reset-btn');
+
+    function sendAjaxRequest() {
+        const formData = new FormData(filterForm);
+        formData.set('search', searchInput.value);
+        const queryString = new URLSearchParams(formData).toString();
+        fetch(`?${queryString}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('tutor-list-container').innerHTML = data.html;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Event listeners for filters and search
+    filterForm.addEventListener('input', sendAjaxRequest);
+    searchInput.addEventListener('input', sendAjaxRequest);
+
+    // Reset filters
+    resetButton.addEventListener('click', function() {
+        filterForm.reset();
+        searchInput.value = '';
+        sendAjaxRequest();
+    });
+});
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+/* General Styles */
+:root {
+    --primary-color: #20c997;
+    --secondary-color: #f8f9fa;
+    --light-gray: #e9ecef;
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+    --hover-color: #0056b3;
+}
+
+body {
+    background-color: var(--secondary-color);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Search Bar Styling */
+.search-bar {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: box-shadow var(--transition-speed), border-color var(--transition-speed);
+}
+
+.search-bar:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Filter Section */
+.filter-section {
+    background: var(--light-gray);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section label {
+    font-weight: bold;
+}
+
+.filter-section select,
+.filter-section input {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 10px;
+}
+
+/* Tutor List Styling */
+#tutor-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Tutor Card Style */
+.tutor-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
+}
+
+.tutor-item:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+.tutor-item .tutor-img {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.tutor-item .tutor-img img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+}
+
+.tutor-item .tutor-img:hover img {
+    transform: scale(1.05);
+}
+
+.tutor-item .tutor-content {
+    padding: 20px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+
+.tutor-item .tutor-content h4 {
+    font-size: 1.4rem;
+    color: #333;
+}
+
+.tutor-item .tutor-content p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.tutor-item .tutor-content a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tutor-item .tutor-content a:hover {
+    color: var(--primary-color);
+}
+
+/* Round Buttons for Experience & Specialization */
+.specialization-badge,
+.experience-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 50px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.specialization-badge:hover,
+.experience-badge:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-3px);
+}
+
+/* Bio Modal Button */
+.show-bio-btn {
+    border-radius: 50px;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 8px 20px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.show-bio-btn:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-3px);
+}
+
+/* Pagination Styling */
+.pagination .btn {
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pagination .btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* Tooltip Styling */
+[data-bs-toggle="tooltip"] {
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tutor-item {
+        flex: 0 0 100%;
+    }
+
+    .filter-section {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}

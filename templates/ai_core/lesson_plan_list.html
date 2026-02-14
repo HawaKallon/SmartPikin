@@ -1,0 +1,102 @@
+{% extends 'base/index.html' %}
+{% block style %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+    .navbar {
+        background-color: #0a53be; /* Example navbar color */
+        height: 60px; /* Example navbar height */
+        position: fixed; /* Keep navbar fixed */
+        width: 100%; /* Full width */
+        z-index: 1000; /* Ensure it's above content */
+    }
+    .container {
+        width: 80%;
+        margin: auto;
+        padding: 80px 20px 20px; /* Top padding to accommodate the navbar height */
+        overflow: hidden;
+    }
+    h1 {
+        text-align: center;
+        color: black;
+        margin: 0 0 20px 0; /* Remove top margin, retain bottom margin */
+    }
+    .lesson-plan-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    .lesson-plan-table th,
+    .lesson-plan-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    .lesson-plan-table th {
+        background-color: #0a53be;
+        color: white;
+    }
+    .lesson-plan-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .lesson-plan-table tr:hover {
+        background-color: #ddd;
+    }
+    .download-button {
+        display: inline-block;
+        background: black;
+        color: white;
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+    .download-button:hover {
+        background: #0056b3;
+    }
+    @media screen and (max-width: 768px) {
+        .lesson-plan-table {
+            display: block;
+            overflow-x: auto; /* Enable horizontal scrolling for small screens */
+        }
+        .lesson-plan-table th,
+        .lesson-plan-table td {
+            white-space: nowrap; /* Prevent text from wrapping */
+        }
+    }
+</style>
+{% endblock %}
+{% block page_content %}
+    <div class="container">
+        <h1>Your Lesson Plans</h1>
+        {% if lesson_plans %}
+            <table class="lesson-plan-table">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Level</th>
+                        <th>Area</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plan in lesson_plans %}
+                        <tr>
+                            <td>{{ plan.topic|truncatewords:10 }}</td>
+                            <td>{{ plan.level }}</td>
+                            <td>{{ plan.area }}</td>
+                            <td>{{ plan.created_at|date:"F j, Y, g:i a" }}</td>
+                            <td><a href="{% url 'ai_core:download_lesson_plan' plan.id %}" class="download-button">Download PDF</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No lesson plans found. Create some!</p>
+        {% endif %}
+    </div>
+{% endblock %}

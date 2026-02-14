@@ -1,0 +1,220 @@
+{% extends "base/index.html" %}
+{% load static %}
+
+{% block page_content %}
+<div class="container my-5" style="padding-top: 80px;">
+    <!-- Lawyer Profile Header -->
+    <div class="profile-header rounded shadow-lg p-4 mb-5 bg-primary text-white text-center">
+        <div class="row align-items-center" style="padding-top: 80px;">
+            <div class="col-md-3">
+                {% if lawyer_profile.user.profile_image %}
+                    <img src="{{ lawyer_profile.user.profile_image.url }}" class="rounded-circle img-fluid shadow-sm" alt="Profile Image">
+                {% else %}
+                    <img src="{% static 'assets/img/ipr3.jpg' %}" class="rounded-circle img-fluid shadow-sm" alt="Default Avatar">
+                {% endif %}
+            </div>
+            <div class="col-md-9 text-start">
+                <h1 class="display-4 fw-bold">{{ lawyer_profile.user.first_name }} {{ lawyer_profile.user.last_name }}</h1>
+                <p class="lead fst-italic">{{ lawyer_profile.bio|default:"No bio available" }}</p>
+                <div>
+                    <span class="badge bg-info rounded-pill px-3 py-2">
+                        Practice Areas: {{ lawyer_profile.practice_areas.all|join:", "|default:"N/A" }}
+                    </span>
+                    <span class="badge bg-warning rounded-pill px-3 py-2">
+                        Ratings: {{ lawyer_profile.ratings|default:"N/A" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="details-tab" data-bs-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true">Profile Details</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="social-media-tab" data-bs-toggle="tab" href="#social-media" role="tab" aria-controls="social-media" aria-selected="false">Social Media</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="bar-membership-tab" data-bs-toggle="tab" href="#bar-membership" role="tab" aria-controls="bar-membership" aria-selected="false">Bar Membership</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="profileTabsContent">
+        <!-- Profile Details Tab -->
+        <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h2 class="card-title text-primary">Lawyer Profile Details</h2>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Years of Experience:</strong> {{ lawyer_profile.years_of_experience|default:"N/A" }}</li>
+                                <li class="list-group-item"><strong>Education:</strong> {{ lawyer_profile.education|default:"Not provided" }}</li>
+                                <li class="list-group-item"><strong>Certifications:</strong> {{ lawyer_profile.certifications|default:"Not provided" }}</li>
+                                <li class="list-group-item"><strong>Awards:</strong> {{ lawyer_profile.awards|default:"Not provided" }}</li>
+                                <li class="list-group-item"><strong>Languages Spoken:</strong> {{ lawyer_profile.languages|join:", "|default:"Not provided" }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Tab -->
+        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card text-center shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="text-primary">Contact</h3>
+                            <ul class="list-group">
+                                <li class="list-group-item"><strong>Phone:</strong> {{ lawyer_profile.phone_number|default:"Not available" }}</li>
+                                <li class="list-group-item"><strong>Office Location:</strong> {{ lawyer_profile.office_location|default:"Not available" }}</li>
+                                <li class="list-group-item"><strong>Website:</strong> 
+                                    <a href="{{ lawyer_profile.website_url }}" target="_blank">{{ lawyer_profile.website_url|default:"Not available" }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Tab -->
+        <div class="tab-pane fade" id="social-media" role="tabpanel" aria-labelledby="social-media-tab">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card text-center shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="text-primary">Social Media Links</h3>
+                            <ul class="list-group">
+                                <li class="list-group-item"><strong>LinkedIn:</strong> 
+                                    <a href="{{ lawyer_profile.social_media.linkedin }}" target="_blank">{{ lawyer_profile.social_media.linkedin|default:"Not available" }}</a>
+                                </li>
+                                <li class="list-group-item"><strong>Twitter:</strong> 
+                                    <a href="{{ lawyer_profile.social_media.twitter }}" target="_blank">{{ lawyer_profile.social_media.twitter|default:"Not available" }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Membership Tab -->
+        <div class="tab-pane fade" id="bar-membership" role="tabpanel" aria-labelledby="bar-membership-tab">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card text-center shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="text-primary">Bar Membership</h3>
+                            <ul class="list-group">
+                                <li class="list-group-item"><strong>Bar Membership Number:</strong> {{ lawyer_profile.bar_membership_number|default:"Not available" }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Cases & Notable Clients -->
+    <div class="row my-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="text-primary">Featured Cases</h2>
+                    <p>{{ lawyer_profile.featured_cases|default:"No featured cases listed" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="text-primary">Notable Clients</h2>
+                    <p>{{ lawyer_profile.notable_clients|default:"No notable clients listed" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    .profile-header {
+        background-image: linear-gradient(120deg, #007bff, #6c757d);
+        color: white;
+        padding: 30px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .list-group-item {
+        font-size: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .img-fluid {
+        max-height: 200px;
+        object-fit: cover;
+    }
+
+    .card-body h2 {
+        font-size: 1.75rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .card-body a {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .card-body a:hover {
+        text-decoration: underline;
+    }
+
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+
+    .row .col-md-6,
+    .row .col-md-4 {
+        transition: all 0.3s ease;
+    }
+
+    .row .col-md-6:hover,
+    .row .col-md-4:hover {
+        transform: translateY(-10px);
+    }
+
+    .badge.bg-info {
+        background-color: #17a2b8;
+    }
+
+    .badge.bg-warning {
+        background-color: #ffc107;
+    }
+
+</style>
+{% endblock %}

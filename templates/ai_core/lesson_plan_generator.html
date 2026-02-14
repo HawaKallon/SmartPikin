@@ -1,0 +1,281 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px;">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        {% if user_role == 'student' %}
+        <h1 class="display-4 text-primary">Salone Smart Study Notes</h1>
+        <p class="lead text-muted">Generating personalized study notes to help you excel across Sierra Leone.</p>
+        {% else %}
+        <h1 class="display-4 text-primary">Salone Smart Class Designer</h1>
+        <p class="lead text-muted">Crafting custom lesson plans for impactful learning across Sierra Leone.</p>
+        {% endif %}
+    </div>
+
+    {% if lesson_plan %}
+    <!-- Collapsed form summary bar -->
+    <div class="d-flex justify-content-between align-items-center bg-light border rounded p-3 mb-4" id="form-summary">
+        <div>
+            <strong>{{ topic }}</strong> &mdash; {{ level }} &mdash; {{ area }}
+        </div>
+        <button class="btn btn-outline-primary btn-sm" onclick="document.getElementById('form-card').style.display='block'; document.getElementById('form-summary').style.display='none'; document.getElementById('lesson-results').style.display='none';">
+            {% if user_role == 'student' %}New Study Notes{% else %}New Lesson Plan{% endif %}
+        </button>
+    </div>
+    <!-- Full form, hidden when results exist -->
+    <div id="form-card" style="display: none;">
+    {% else %}
+    <div id="form-card">
+    {% endif %}
+
+        <!-- Education-themed SVG icons -->
+        <div class="d-flex justify-content-center mb-4">
+            <svg width="100" height="100" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 8C2 5.8 3.8 4 6 4H36C38.2 4 40 5.8 40 8V56C40 58.2 38.2 60 36 60H6C3.8 60 2 58.2 2 56V8Z" fill="#f9b234"/>
+                <path d="M42 8C42 5.8 43.8 4 46 4H58C60.2 4 62 5.8 62 8V56C62 58.2 60.2 60 58 60H46C43.8 60 42 58.2 42 56V8Z" fill="#f98134"/>
+                <path d="M4 10H36V14H4V10Z" fill="#fff"/>
+                <path d="M46 10H58V14H46V10Z" fill="#fff"/>
+            </svg>
+            <svg width="100" height="100" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <path d="M32 4L2 20L32 36L62 20L32 4Z" fill="#6a7dce"/>
+                <path d="M10 23V40C10 45 26 53 32 53C38 53 54 45 54 40V23L32 36L10 23Z" fill="#4a5ba5"/>
+                <path d="M40 40C40 41.1 39.1 42 38 42C36.9 42 36 41.1 36 40C36 38.9 36.9 38 38 38C39.1 38 40 38.9 40 40Z" fill="#f9b234"/>
+            </svg>
+            <svg width="100" height="100" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <path d="M56 0L64 8L22 50L14 42L56 0Z" fill="#f98134"/>
+                <path d="M14 42L10 50L2 62L10 54L18 50L14 42Z" fill="#ffd93b"/>
+                <path d="M56 0L52 4L58 10L64 8L56 0Z" fill="#6a7dce"/>
+            </svg>
+        </div>
+
+        <!-- Form to Generate Lesson Plan -->
+        <div class="card shadow-lg border-light rounded">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="topic" class="form-label fs-5 fw-bold">Enter a Topic:</label>
+                        <input type="text" class="form-control" id="topic" name="topic" placeholder="e.g., Photosynthesis, Algebra" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="level" class="form-label fs-5 fw-bold">Select Educational Level:</label>
+                        <select class="form-select" id="level" name="level" required>
+                            <option value="Primary">Primary (Grades 1-6)</option>
+                            <option value="Junior Secondary">Junior Secondary (Grades 7-9)</option>
+                            <option value="Senior Secondary">Senior Secondary (Grades 10-12)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="area" class="form-label fs-5 fw-bold">Select Area:</label>
+                        <select class="form-select" id="area" name="area" required>
+                            <option value="Rural">Rural</option>
+                            <option value="Urban">Urban</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {% if user_role == 'student' %}Generate Study Notes{% else %}Generate Lesson Plan{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display Generated Lesson Plan -->
+    {% if lesson_plan %}
+    <div id="lesson-results">
+    <div class="card shadow-sm rounded mt-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="mb-4">
+                <span class="badge bg-primary me-2">{{ topic }}</span>
+                <span class="badge bg-secondary me-2">{{ level }}</span>
+                <span class="badge bg-info text-dark">{{ area }}</span>
+            </div>
+            <div class="lesson-plan-content markdown-body">{{ lesson_plan|safe }}</div>
+        </div>
+    </div>
+
+    <!-- Actions area -->
+    <div class="mt-4 d-flex flex-wrap gap-3 align-items-start">
+        <a href="{% url 'ai_core:download_lesson_plan' lesson_plan_id %}" class="btn btn-success btn-lg">
+            <i class="bi bi-download"></i> {% if user_role == 'student' %}Download Study Notes as PDF{% else %}Download as PDF{% endif %}
+        </a>
+    </div>
+
+    <!-- Follow-up form -->
+    <div class="card shadow-sm rounded mt-4">
+        <div class="card-body">
+            <h5 class="card-title text-primary mb-3">
+                {% if user_role == 'student' %}Request Additional Study Material{% else %}Request Follow-up Content{% endif %}
+            </h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="lesson_plan_id" value="{{ lesson_plan_id }}">
+                <div class="mb-4">
+                    <label for="follow_up_request" class="form-label fs-5 fw-bold">Enter Your Follow-up Request:</label>
+                    <textarea class="form-control" id="follow_up_request" name="follow_up_request" rows="4" placeholder="{% if user_role == 'student' %}e.g., Explain this concept further, give me more practice problems, or show another worked example.{% else %}e.g., Provide more examples or clarify a specific concept.{% endif %}" required></textarea>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-warning btn-lg">Generate Follow-up Content</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- KaTeX for Math Rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js"></script>
+<!-- Mermaid for Diagram Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\[", right: "\\]", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false }
+            ]
+        });
+        // Bridge fenced code blocks to Mermaid-renderable elements
+        mermaid.initialize({ startOnLoad: false });
+        document.querySelectorAll('pre > code.language-mermaid').forEach(function(codeEl, i) {
+            var pre = codeEl.parentElement;
+            var container = document.createElement('div');
+            var graphText = codeEl.textContent.trim();
+            try {
+                mermaid.render('mermaid-graph-' + i, graphText).then(function(result) {
+                    container.innerHTML = result.svg;
+                    pre.parentElement.replaceChild(container, pre);
+                }).catch(function() {
+                    // Parse error — show the raw code block as-is
+                    pre.style.background = '#f8f9fa';
+                    pre.style.padding = '1rem';
+                    pre.style.borderRadius = '6px';
+                });
+            } catch(e) {
+                // Synchronous parse error — show the raw code block as-is
+                pre.style.background = '#f8f9fa';
+                pre.style.padding = '1rem';
+                pre.style.borderRadius = '6px';
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Spacious reading layout for generated content */
+    .lesson-plan-content {
+        line-height: 1.8;
+        font-size: 1.05rem;
+        color: #333;
+    }
+
+    .lesson-plan-content h2,
+    .lesson-plan-content h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        color: #2c3e50;
+    }
+
+    .lesson-plan-content h3:first-child,
+    .lesson-plan-content h2:first-child {
+        margin-top: 0;
+    }
+
+    .lesson-plan-content p {
+        margin-bottom: 1rem;
+    }
+
+    .lesson-plan-content ul,
+    .lesson-plan-content ol {
+        margin-bottom: 1.2rem;
+        padding-left: 1.5rem;
+    }
+
+    .lesson-plan-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Follow-up separator styling */
+    .follow-up-separator {
+        margin: 2.5rem 0 2rem 0;
+        padding: 1rem 0 0.5rem 0;
+        border-top: 3px solid #4CAF50;
+    }
+
+    .follow-up-separator h2 {
+        border-bottom: none !important;
+        color: #4CAF50 !important;
+        margin-top: 0 !important;
+    }
+
+    /* Table styling */
+    .lesson-plan-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .lesson-plan-content th,
+    .lesson-plan-content td {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    .lesson-plan-content th {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: 600;
+    }
+
+    .lesson-plan-content tr:nth-child(even) {
+        background-color: #f7f7f7;
+    }
+
+    .lesson-plan-content tr:hover {
+        background-color: #e0f7fa;
+        cursor: pointer;
+    }
+
+    .lesson-plan-content td {
+        border: 1px solid #ddd;
+    }
+
+    /* Responsive table wrapper */
+    .lesson-plan-content .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* General button and form styling */
+    .btn {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+</style>
+{% endblock %}

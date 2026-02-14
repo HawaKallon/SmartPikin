@@ -1,0 +1,325 @@
+{##}
+{#{% extends "base/index.html" %}#}
+{#{% load static %}#}
+{##}
+{#{% block page_content %}#}
+{#<div class="container mt-5" style="padding-top: 80px;">#}
+{#    <h2 class="text-center mb-4">Educational Question Generator</h2>#}
+{##}
+{#    <!-- Display messages -->#}
+{#    {% if messages %}#}
+{#        <div class="alert alert-info">#}
+{#            {% for message in messages %}#}
+{#                <p>{{ message }}</p>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    {% endif %}#}
+{##}
+{#    <!-- Question Generation Form -->#}
+{#    <div class="card shadow-sm">#}
+{#        <div class="card-body">#}
+{#            <form method="post" class="row g-3" enctype="multipart/form-data">#}
+{#                {% csrf_token %}#}
+{#                #}
+{#                <!-- Class Level -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="class_level" class="form-label">Class Level</label>#}
+{#                    <select class="form-select" id="class_level" name="class_level" required>#}
+{#                        <option value="" selected disabled>Choose a class level</option>#}
+{#                        {% for level in class_levels %}#}
+{#                            <option value="{{ level.0 }}">{{ level.1 }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
+{#            #}
+{#            <label for="subject">Subject:</label>#}
+{#    <select name="subject">  <!-- New dropdown -->#}
+{#        {% for value, label in subjects %}#}
+{#            <option value="{{ value }}">{{ label }}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+{#                <!-- Resource Type -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="resource_type" class="form-label">Resource Type</label>#}
+{#                    <select class="form-select" id="resource_type" name="resource_type" required>#}
+{#                        <option value="" selected disabled>Select resource type</option>#}
+{#                        {% for type in resource_types %}#}
+{#                            <option value="{{ type.0 }}">{{ type.1 }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
+{##}
+{#                <!-- Topic -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="topic" class="form-label">Topic</label>#}
+{#                    <input type="text" class="form-control" id="topic" name="topic" placeholder="Enter topic" required>#}
+{#                </div>#}
+{##}
+{#                <!-- Number of Questions -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="number_of_questions" class="form-label">Number of Questions:</label>#}
+{#                    <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" value="5" required>#}
+{#                </div>#}
+{##}
+{#                <!-- Difficulty Level -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="difficulty_level" class="form-label">Difficulty Level</label>#}
+{#                    <select class="form-select" id="difficulty_level" name="difficulty_level" required>#}
+{#                        <option value="" selected disabled>Select difficulty level</option>#}
+{#                        {% for level in difficulty_levels %}#}
+{#                            <option value="{{ level.0 }}">{{ level.1 }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
+{##}
+{#                <!-- PDF Upload Field -->#}
+{#                <div class="col-md-6">#}
+{#                    <label for="pdf_file" class="form-label">Upload PDF (Optional)</label>#}
+{#                    <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept="application/pdf">#}
+{#                </div>#}
+{##}
+{#                <!-- Submit Button -->#}
+{#                <div class="col-12 text-center">#}
+{#                    <button type="submit" class="btn btn-primary btn-lg">Generate Questions</button>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <!-- Generated Questions Display -->#}
+{#    {% if resource_content %}#}
+{#        <div class="card mt-4 shadow-sm animated fadeIn">#}
+{#            <div class="card-header bg-success text-white">#}
+{#                <h5 class="mb-0">Generated Questions</h5>#}
+{#            </div>#}
+{#            <div class="card-body">#}
+{#                <div class="row mb-4">#}
+{#                    <div class="col-md-6">#}
+{#                        <p><strong>Class Level:</strong> {{ class_level }}</p>#}
+{#                        <p><strong>Topic:</strong> {{ topic }}</p>#}
+{#                    </div>#}
+{#                    <div class="col-md-6">#}
+{#                        <p><strong>Resource Type:</strong> {{ resource_type }}</p>#}
+{#                        <p><strong>Difficulty Level:</strong> {{ difficulty_level }}</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <hr>#}
+{#                <div class="content">#}
+{#                    {{ resource_content|safe }}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    {% endif %}#}
+{#</div>#}
+{#{% endblock %}#}
+{##}
+{##}
+{#<!-- Include SimpleMDE or other Markdown Editor library -->#}
+{#{% block scripts %}#}
+{#<script src="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js"></script>#}
+{#<script>#}
+{#    // Initialize the Markdown editor on the content field#}
+{#    document.addEventListener('DOMContentLoaded', function() {#}
+{#        var simplemde = new SimpleMDE({ element: document.getElementById("content") });#}
+{#    });#}
+{#</script>#}
+{#{% endblock scripts %}#}
+{#	#}
+{#{% block style %}#}
+{#	#}
+{##}
+{#<!-- Add CSS for animations -->#}
+{#<style>#}
+{#    .animated {#}
+{#        animation-duration: 1s;#}
+{#        animation-fill-mode: both;#}
+{#    }#}
+{##}
+{#    @keyframes fadeIn {#}
+{#        from {#}
+{#            opacity: 0;#}
+{#        }#}
+{#        to {#}
+{#            opacity: 1;#}
+{#        }#}
+{#    }#}
+{##}
+{#    .fadeIn {#}
+{#        animation-name: fadeIn;#}
+{#    }#}
+{#</style>#}
+{#{% endblock %}#}
+{% extends "base/index.html" %}
+{% load static %}
+
+{% block page_content %}
+<div class="container py-5" style="padding-top: 80px;">
+    <h2 class="text-center mb-4 fw-bold text-primary">🎓 Educational Question Generator</h2>
+
+    <!-- Display Messages -->
+    {% if messages %}
+        <div class="alert alert-info text-center fw-semibold">
+            {% for message in messages %}
+                <p class="mb-0">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Question Generation Form -->
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-4">
+            <form method="post" class="row g-4" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Class Level -->
+                <div class="col-md-6">
+                    <label for="class_level" class="form-label fw-semibold">📚 Class Level</label>
+                    <select class="form-select shadow-sm" id="class_level" name="class_level" required>
+                        <option value="" selected disabled>Choose a class level</option>
+                        {% for level in class_levels %}
+                            <option value="{{ level.0 }}">{{ level.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Subject -->
+                <div class="col-md-6">
+                    <label for="subject" class="form-label fw-semibold">📖 Subject</label>
+                    <select class="form-select shadow-sm" id="subject" name="subject">
+                        <option value="" selected disabled>Choose a subject</option>
+                        {% for value, label in subjects %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Resource Type -->
+                <div class="col-md-6">
+                    <label for="resource_type" class="form-label fw-semibold">📂 Resource Type</label>
+                    <select class="form-select shadow-sm" id="resource_type" name="resource_type" required>
+                        <option value="" selected disabled>Select resource type</option>
+                        {% for type in resource_types %}
+                            <option value="{{ type.0 }}">{{ type.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Topic -->
+                <div class="col-md-6">
+                    <label for="topic" class="form-label fw-semibold">🔍 Topic</label>
+                    <input type="text" class="form-control shadow-sm" id="topic" name="topic" placeholder="Enter topic" required>
+                </div>
+
+                <!-- Number of Questions -->
+                <div class="col-md-6">
+                    <label for="number_of_questions" class="form-label fw-semibold">❓ Number of Questions</label>
+                    <input type="number" class="form-control shadow-sm" id="number_of_questions" name="number_of_questions" min="1" value="5" required>
+                </div>
+
+                <!-- Difficulty Level -->
+                <div class="col-md-6">
+                    <label for="difficulty_level" class="form-label fw-semibold">⚡ Difficulty Level</label>
+                    <select class="form-select shadow-sm" id="difficulty_level" name="difficulty_level" required>
+                        <option value="" selected disabled>Select difficulty level</option>
+                        {% for level in difficulty_levels %}
+                            <option value="{{ level.0 }}">{{ level.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- PDF Upload Field -->
+                <div class="col-md-6">
+                    <label for="pdf_file" class="form-label fw-semibold">📄 Upload PDF (Optional)</label>
+                    <input type="file" class="form-control shadow-sm" id="pdf_file" name="pdf_file" accept="application/pdf">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-4 py-2 rounded-pill shadow">Generate Questions 🚀</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generated Questions Display -->
+    {% if resource_content %}
+        <div class="card mt-4 shadow-lg border-0 rounded-3 fadeIn">
+            <div class="card-header bg-success text-white text-center fw-bold">
+                Generated Questions 📜
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>📚 Class Level:</strong> {{ class_level }}</p>
+                        <p><strong>🔍 Topic:</strong> {{ topic }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>📂 Resource Type:</strong> {{ resource_type }}</p>
+                        <p><strong>⚡ Difficulty Level:</strong> {{ difficulty_level }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="content">
+                    {{ resource_content|safe }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new SimpleMDE({ element: document.getElementById("content") });
+    });
+</script>
+{% endblock scripts %}
+
+{% block style %}
+<style>
+    /* Fade-in Animation */
+    .fadeIn {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Styling */
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    /* Form Elements */
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        background: linear-gradient(to right, #007bff, #0056b3);
+        border: none;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #0056b3, #007bff);
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}

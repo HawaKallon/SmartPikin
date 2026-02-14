@@ -1,0 +1,22 @@
+<!-- application/school_level.html -->
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+  <h1>School Level Information</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-navigation">
+      {% if wizard.steps.prev %}
+        <a href="{{ wizard.get_prev_step_url }}" class="btn btn-secondary">Previous</a>
+      {% endif %}
+      <button type="submit" class="btn btn-primary">
+        {% if wizard.steps.next %}
+          Next
+        {% else %}
+          Submit
+        {% endif %}
+      </button>
+    </div>
+  </form>
+{% endblock %}

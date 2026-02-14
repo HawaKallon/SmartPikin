@@ -1,0 +1,461 @@
+{#{% load static %}#}
+{##}
+{#<div class="row g-4 schools-row">#}
+{#    {% if schools %}#}
+{#        {% for school in schools %}#}
+{#            <!-- Changed col-lg-6 to col-lg-4 for 3 cards per row -->#}
+{#            <div class="col-md-6 col-lg-4 mb-4">#}
+{#                <div class="school-item d-flex flex-column h-100 position-relative overflow-hidden shadow-sm rounded">#}
+{#                    <!-- School Logo -->#}
+{#                    <div class="school-img">#}
+{#                        {% if school.logo %}#}
+{#                            <img src="{{ school.logo.url }}" class="img-fluid w-100" alt="{{ school.name }} Logo">#}
+{#                        {% else %}#}
+{#                            <img src="{% static 'core/images/logo.PNG' %}" class="img-fluid w-100" alt="Default School Logo">#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                    <!-- School Details -->#}
+{#                    <div class="school-content p-4 flex-grow-1 bg-light">#}
+{#                        <h4 class="mb-2 text-dark">#}
+{#                            <a href="#" class="text-decoration-none school-name" data-bs-toggle="tooltip" title="More details about {{ school.name }}">#}
+{#                                {{ school.name }}#}
+{#                            </a>#}
+{#                        </h4>#}
+{#                        <p class="mb-1 badge bg-secondary"><strong>Type:</strong> {{ school.get_school_type_display }}</p>#}
+{#                        <p class="mb-1 badge bg-info"><strong>Total Enrollment:</strong> {{ school.total_enrollment|default:"N/A" }}</p>#}
+{#                        <p class="mb-1 badge bg-warning text-dark"><strong>Teachers:</strong> {{ school.number_of_teachers|default:"N/A" }}</p>#}
+{#                        <p class="mb-1 badge bg-success"><strong>Classrooms:</strong> {{ school.number_of_classrooms|default:"N/A" }}</p>#}
+{#                        <!-- Show More Modal Trigger -->#}
+{#                        <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#detailsModal{{ school.id }}">#}
+{#                            Show More#}
+{#                        </button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- Modal for Additional Details -->#}
+{#            <div class="modal fade" id="detailsModal{{ school.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ school.id }}" aria-hidden="true">#}
+{#                <div class="modal-dialog modal-dialog-centered">#}
+{#                    <div class="modal-content">#}
+{#                        <div class="modal-header">#}
+{#                            <h5 class="modal-title" id="detailsModalLabel{{ school.id }}">#}
+{#                                Details of {{ school.name }}#}
+{#                            </h5>#}
+{#                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                        </div>#}
+{#                        <div class="modal-body">#}
+{#                            <p><strong>Motto:</strong> {{ school.school_motto|default:"N/A" }}</p>#}
+{#                            <p><strong>Established:</strong> {{ school.established_year|date:"Y" }}</p>#}
+{#                            <p><strong>Contact:</strong> {{ school.contact_number|default:"N/A" }}</p>#}
+{#                            <p><strong>Email:</strong> {{ school.email_address|default:"N/A" }}</p>#}
+{#                            <p><strong>Website:</strong> #}
+{#                                {% if school.website %}#}
+{#                                    <a href="{{ school.website }}" target="_blank">{{ school.website }}</a>#}
+{#                                {% else %}#}
+{#                                    N/A#}
+{#                                {% endif %}#}
+{#                            </p>#}
+{#                            <p><strong>Facilities:</strong> {{ school.facilities_summary|default:"No information available." }}</p>#}
+{#                            <p><strong>Community Engagement:</strong> {{ school.community_engagement|default:"No information available." }}</p>#}
+{#                        </div>#}
+{#                        <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#            #}
+{#        {% endfor %}#}
+{#    {% else %}#}
+{#        <p class="text-center">No schools found.</p>#}
+{#    {% endif %}#}
+{#</div>#}
+{##}
+{#<div class="pagination d-flex justify-content-center mt-4">#}
+{#            <span class="mr-2">Page {{ schools.number }} of {{ schools.paginator.num_pages }}</span>#}
+{#            {% if schools.has_previous %}#}
+{#                <a href="?page=1&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">First</a>#}
+{#                <a href="?page={{ schools.previous_page_number }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Previous</a>#}
+{#            {% endif %}#}
+{#            {% for num in schools.paginator.page_range %}#}
+{#                {% if schools.number == num %}#}
+{#                    <span class="btn btn-light mx-1">{{ num }}</span>#}
+{#                {% else %}#}
+{#                    <a href="?page={{ num }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary mx-1">{{ num }}</a>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{#            {% if schools.has_next %}#}
+{#                <a href="?page={{ schools.next_page_number }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Next</a>#}
+{#                <a href="?page={{ schools.paginator.num_pages }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Last</a>#}
+{#            {% endif %}#}
+{#        </div>#}
+{##}
+{##}
+{#   #}
+{#{% load static %}#}
+{##}
+{#<div class="row g-4 schools-row">#}
+{#    {% if schools %}#}
+{#        {% for school in schools %}#}
+{#            <!-- Changed col-lg-6 to col-lg-4 for 3 cards per row -->#}
+{#            <div class="col-md-6 col-lg-4 mb-4">#}
+{#                <div class="school-item d-flex flex-column h-100 position-relative overflow-hidden shadow-sm rounded">#}
+{#                    <!-- School Logo -->#}
+{#                    <div class="school-img">#}
+{#                        {% if school.logo %}#}
+{#                            <img src="{{ school.logo.url }}" class="img-fluid w-100" alt="{{ school.name }} Logo">#}
+{#                        {% else %}#}
+{#                            <img src="{% static 'core/images/logo.PNG' %}" class="img-fluid w-100" alt="Default School Logo">#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                    <!-- School Details -->#}
+{#                    <div class="school-content p-4 flex-grow-1 bg-light">#}
+{#                        <h4 class="mb-2 text-dark">#}
+{#                            <a href="#" class="text-decoration-none school-name" data-bs-toggle="tooltip" title="More details about {{ school.name }}">#}
+{#                                {{ school.name }}#}
+{#                            </a>#}
+{#                        </h4>#}
+{#                        <p class="mb-1 badge bg-secondary"><strong>Type:</strong> {{ school.get_school_type_display }}</p>#}
+{#                        <p class="mb-1 badge bg-info"><strong>Total Enrollment:</strong> {{ school.total_enrollment|default:"N/A" }}</p>#}
+{#                        <p class="mb-1 badge bg-warning text-dark"><strong>Teachers:</strong> {{ school.number_of_teachers|default:"N/A" }}</p>#}
+{#                        <p class="mb-1 badge bg-success"><strong>Classrooms:</strong> {{ school.number_of_classrooms|default:"N/A" }}</p>#}
+{#                        <!-- Show More Modal Trigger -->#}
+{#                        <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#detailsModal{{ school.id }}">#}
+{#                            Show More#}
+{#                        </button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- Modal for Additional Details -->#}
+{#            <div class="modal fade" id="detailsModal{{ school.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ school.id }}" aria-hidden="true">#}
+{#                <div class="modal-dialog modal-dialog-centered">#}
+{#                    <div class="modal-content">#}
+{#                        <div class="modal-header">#}
+{#                            <h5 class="modal-title" id="detailsModalLabel{{ school.id }}">#}
+{#                                Details of {{ school.name }}#}
+{#                            </h5>#}
+{#                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                        </div>#}
+{#                        <div class="modal-body">#}
+{#                            <p><strong>Motto:</strong> {{ school.school_motto|default:"N/A" }}</p>#}
+{#                            <p><strong>Established:</strong> {{ school.established_year|date:"Y" }}</p>#}
+{#                            <p><strong>Contact:</strong> {{ school.contact_number|default:"N/A" }}</p>#}
+{#                            <p><strong>Email:</strong> {{ school.email_address|default:"N/A" }}</p>#}
+{#                            <p><strong>Website:</strong> #}
+{#                                {% if school.website %}#}
+{#                                    <a href="{{ school.website }}" target="_blank">{{ school.website }}</a>#}
+{#                                {% else %}#}
+{#                                    N/A#}
+{#                                {% endif %}#}
+{#                            </p>#}
+{#                            <p><strong>Facilities:</strong> {{ school.facilities_summary|default:"No information available." }}</p>#}
+{#                            <p><strong>Community Engagement:</strong> {{ school.community_engagement|default:"No information available." }}</p>#}
+{#                        </div>#}
+{#                        <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{#    {% else %}#}
+{#        <p class="text-center">No schools found.</p>#}
+{#    {% endif %}#}
+{#</div>#}
+{#{% load static %}#}
+{#<div class="row g-4 schools-row">#}
+{#    {% if schools %}#}
+{#        {% for school in schools %}#}
+{#            <!-- Responsive card grid: 3 cards per row on lg screens -->#}
+{#            <div class="col-md-6 col-lg-4 mb-4">#}
+{#                <div class="school-item d-flex flex-column h-100 position-relative overflow-hidden shadow-sm rounded border">#}
+{#                    <!-- School Logo -->#}
+{#                    <div class="school-img">#}
+{#                        {% if school.logo %}#}
+{#                            <img src="{{ school.logo.url }}" class="img-fluid w-100" alt="{{ school.name }} Logo" style="height: 180px; object-fit: cover;">#}
+{#                        {% else %}#}
+{#                            <img src="{% static 'core/images/logo.PNG' %}" class="img-fluid w-100" alt="Default School Logo" style="height: 180px; object-fit: cover;">#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                    <!-- School Details -->#}
+{#                    <div class="school-content p-4 flex-grow-1 bg-light d-flex flex-column">#}
+{#                        <h5 class="mb-3 text-center text-dark fw-bold">#}
+{#                            <a href="#" class="text-decoration-none school-name" data-bs-toggle="tooltip" title="More details about {{ school.name }}">#}
+{#                                {{ school.name }}#}
+{#                            </a>#}
+{#                        </h5>#}
+{#                        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">#}
+{#                            <span class="badge bg-secondary">Type: {{ school.get_school_type_display }}</span>#}
+{#                            <span class="badge bg-info">Enrollment: {{ school.total_enrollment|default:"N/A" }}</span>#}
+{#                            <span class="badge bg-warning text-dark">Teachers: {{ school.number_of_teachers|default:"N/A" }}</span>#}
+{#                            <span class="badge bg-success">Classrooms: {{ school.number_of_classrooms|default:"N/A" }}</span>#}
+{#                        </div>#}
+{#                        <!-- Show More Button -->#}
+{#                        <div class="mt-auto text-center">#}
+{#                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal{{ school.id }}">#}
+{#                                Show More#}
+{#                            </button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- Modal for Additional Details -->#}
+{#            <div class="modal fade" id="detailsModal{{ school.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ school.id }}" aria-hidden="true">#}
+{#                <div class="modal-dialog modal-dialog-centered">#}
+{#                    <div class="modal-content rounded-3 shadow">#}
+{#                        <div class="modal-header bg-primary text-white">#}
+{#                            <h5 class="modal-title" id="detailsModalLabel{{ school.id }}">#}
+{#                                Details of {{ school.name }}#}
+{#                            </h5>#}
+{#                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                        </div>#}
+{#                        <div class="modal-body">#}
+{#                            <p><strong>Motto:</strong> {{ school.school_motto|default:"N/A" }}</p>#}
+{#                            <p><strong>Established:</strong> {{ school.established_year|date:"Y" }}</p>#}
+{#                            <p><strong>Contact:</strong> {{ school.contact_number|default:"N/A" }}</p>#}
+{#                            <p><strong>Email:</strong> {{ school.email_address|default:"N/A" }}</p>#}
+{#                            <p><strong>Website:</strong>#}
+{#                                {% if school.website %}#}
+{#                                    <a href="{{ school.website }}" target="_blank" rel="noopener">{{ school.website }}</a>#}
+{#                                {% else %}#}
+{#                                    N/A#}
+{#                                {% endif %}#}
+{#                            </p>#}
+{#                            <p><strong>Facilities:</strong> {{ school.facilities_summary|default:"No information available." }}</p>#}
+{#                            <p><strong>Community Engagement:</strong> {{ school.community_engagement|default:"No information available." }}</p>#}
+{#                        </div>#}
+{#                        <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{##}
+{#        <!-- Pagination -->#}
+{#        <div class="col-12 d-flex justify-content-center mt-4">#}
+{#            <nav aria-label="School List Pagination">#}
+{#                <ul class="pagination">#}
+{#                    {% if page_obj.has_previous %}#}
+{#                        <li class="page-item">#}
+{#                            <a class="page-link" href="?page=1" aria-label="First">&laquo; First</a>#}
+{#                        </li>#}
+{#                        <li class="page-item">#}
+{#                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">Previous</a>#}
+{#                        </li>#}
+{#                    {% endif %}#}
+{##}
+{#                    <li class="page-item disabled">#}
+{#                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>#}
+{#                    </li>#}
+{##}
+{#                    {% if page_obj.has_next %}#}
+{#                        <li class="page-item">#}
+{#                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">Next</a>#}
+{#                        </li>#}
+{#                        <li class="page-item">#}
+{#                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">Last &raquo;</a>#}
+{#                        </li>#}
+{#                    {% endif %}#}
+{#                </ul>#}
+{#            </nav>#}
+{#        </div>#}
+{#    {% else %}#}
+{#        <p class="text-center">No schools found.</p>#}
+{#    {% endif %}#}
+{#</div>#}
+{#{% load static %}#}
+{#<div class="row g-4 schools-row">#}
+{#    {% if schools %}#}
+{#        {% for school in schools %}#}
+{#            <!-- Responsive card grid: 3 cards per row on lg screens -->#}
+{#            <div class="col-md-6 col-lg-4 mb-4">#}
+{#                <div class="school-item d-flex flex-column h-100 position-relative overflow-hidden shadow-sm rounded border">#}
+{#                    <!-- School Logo -->#}
+{#                    <div class="school-img">#}
+{#                        {% if school.logo %}#}
+{#                            <img src="{{ school.logo.url }}" class="img-fluid w-100" alt="{{ school.name }} Logo" style="height: 180px; object-fit: cover;">#}
+{#                        {% else %}#}
+{#                            <img src="{% static 'core/images/logo.PNG' %}" class="img-fluid w-100" alt="Default School Logo" style="height: 180px; object-fit: cover;">#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                    <!-- School Details -->#}
+{#                    <div class="school-content p-4 flex-grow-1 bg-light d-flex flex-column">#}
+{#    <h5 class="mb-3 text-center text-dark fw-bold">#}
+{#        <a href="#" class="text-decoration-none school-name" data-bs-toggle="tooltip" title="More details about {{ school.name }}">#}
+{#            {{ school.name }}#}
+{#        </a>#}
+{#    </h5>#}
+{#    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">#}
+{#    <span class="badge bg-secondary">Type: {{ school.get_school_type_display }}</span>#}
+{#    <span class="badge bg-info">Enrollment: {{ school.total_enrollment|default:"N/A" }}</span>#}
+{#    <span class="badge bg-warning text-dark">Teachers: {{ school.number_of_teachers|default:"N/A" }}</span>#}
+{#    <span class="badge bg-success">Classrooms: {{ school.number_of_classrooms|default:"N/A" }}</span>#}
+{#        <span class="badge bg-success">Pass Rate: {{ school.performance_metrics.pass_rate }}%</span>#}
+{#        <span class="badge bg-success">Average Score: {{ school.performance_metrics.average_score }}</span>#}
+{##}
+{#    <!-- Performance Metrics Section -->#}
+{#    #}
+{#    #}
+{#</div>#}
+{##}
+{#    #}
+{#   #}
+{##}
+{#    <!-- Show More Button -->#}
+{#    <div class="mt-auto text-center">#}
+{#        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal{{ school.id }}">#}
+{#            Show More#}
+{#        </button>#}
+{#    </div>#}
+{#</div>#}
+{##}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- Modal for Additional Details -->#}
+{#            <div class="modal fade" id="detailsModal{{ school.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ school.id }}" aria-hidden="true">#}
+{#                <div class="modal-dialog modal-dialog-centered">#}
+{#                    <div class="modal-content rounded-3 shadow">#}
+{#                        <div class="modal-header bg-primary text-white">#}
+{#                            <h5 class="modal-title" id="detailsModalLabel{{ school.id }}">#}
+{#                                Details of {{ school.name }}#}
+{#                            </h5>#}
+{#                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                        </div>#}
+{#                        <div class="modal-body">#}
+{#                            <p><strong>Motto:</strong> {{ school.school_motto|default:"N/A" }}</p>#}
+{#                            <p><strong>Established:</strong> {{ school.established_year|date:"Y" }}</p>#}
+{#                            <p><strong>Contact:</strong> {{ school.contact_number|default:"N/A" }}</p>#}
+{#                            <p><strong>Address:</strong> {{ school.address|default:"N/A" }}</p>#}
+{#                            <p><strong>Facilities:</strong> {{ school.facilities_summary|default:"N/A" }}</p>#}
+{#                            <p><strong>Extra-Curricular Activities:</strong> {{ school.extra_curricular_activities|default:"N/A" }}</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{#    {% else %}#}
+{#        <div class="col-12">#}
+{#            <p class="text-center text-muted">No schools found based on your filters.</p>#}
+{#        </div>#}
+{#    {% endif %}#}
+{#</div>#}
+{##}
+{#{% if is_paginated %}#}
+{#    <div class="pagination d-flex justify-content-center mt-4">#}
+{#        <span class="page-link">#}
+{#            {% if page_obj.has_previous %}#}
+{#                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page=1" class="text-decoration-none">First</a>#}
+{#                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="text-decoration-none">Previous</a>#}
+{#            {% endif %}#}
+{#        </span>#}
+{#        <span class="page-link">#}
+{#            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}#}
+{#        </span>#}
+{#        <span class="page-link">#}
+{#            {% if page_obj.has_next %}#}
+{#                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="text-decoration-none">Next</a>#}
+{#                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="text-decoration-none">Last</a>#}
+{#            {% endif %}#}
+{#        </span>#}
+{#    </div>#}
+{#{% endif %}#}
+{% load static %}
+<div class="row g-4 schools-row">
+    {% if schools %}
+        {% for school in schools %}
+            <!-- Responsive card grid: 3 cards per row on lg screens -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="school-item d-flex flex-column h-100 position-relative overflow-hidden shadow-sm rounded border">
+                    <!-- School Logo -->
+                    <div class="school-img">
+                        {% if school.logo %}
+                            <img src="{{ school.logo.url }}" class="img-fluid w-100" alt="{{ school.name }} Logo" style="height: 180px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'core/images/logo.PNG' %}" class="img-fluid w-100" alt="Default School Logo" style="height: 180px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+
+                    <!-- School Details -->
+                    <div class="school-content p-4 flex-grow-1 bg-light d-flex flex-column">
+                        <!-- School Name -->
+                        <h5 class="mb-3 text-center text-dark fw-bold">
+                            p
+                        </h5>
+
+                        <!-- School Metrics -->
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                            <span class="badge bg-secondary">Type: {{ school.get_school_type_display }}</span>
+                            <span class="badge bg-info">Enrollment: {{ school.total_enrollment|default:"N/A" }}</span>
+                            <span class="badge bg-warning text-dark">Teachers: {{ school.number_of_teachers|default:"N/A" }}</span>
+                            <span class="badge bg-success">Classrooms: {{ school.number_of_classrooms|default:"N/A" }}</span>
+
+                            {% with school.performance_metrics as metrics %}
+                                {% if metrics.pass_rate %}
+                                    <span class="badge bg-primary">Pass Rate: {{ metrics.pass_rate }}%</span>
+                                {% endif %}
+                                {% if metrics.average_score %}
+                                    <span class="badge bg-success">Average Score: {{ metrics.average_score }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <!-- Show More Button -->
+                        <div class="mt-auto text-center">
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal{{ school.id }}">
+                                Show More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Additional Details -->
+            <div class="modal fade" id="detailsModal{{ school.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ school.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-3 shadow">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="detailsModalLabel{{ school.id }}">
+                                Details of {{ school.name }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Motto:</strong> {{ school.school_motto|default:"N/A" }}</p>
+                            <p><strong>Established:</strong> {{ school.established_year|date:"Y"|default:"N/A" }}</p>
+                            <p><strong>Contact:</strong> {{ school.contact_number|default:"N/A" }}</p>
+                            <p><strong>Facilities:</strong> {{ school.facilities_summary|default:"N/A" }}</p>
+                            <p><strong>Activities:</strong> {{ school.extra_curricular_activities|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <p class="text-center text-muted">No schools found based on your filters.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination Section -->
+{% if is_paginated %}
+<div class="pagination d-flex justify-content-center mt-4">
+    {% if page_obj.has_previous %}
+        <a href="?{{ request.GET.urlencode|default:'' }}&page=1" class="page-link">First</a>
+        <a href="?{{ request.GET.urlencode|default:'' }}&page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+    {% endif %}
+
+    <span class="page-link">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+        <a href="?{{ request.GET.urlencode|default:'' }}&page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+        <a href="?{{ request.GET.urlencode|default:'' }}&page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+    {% endif %}
+</div>
+{% endif %}

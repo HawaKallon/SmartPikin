@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EduBridge | Writing Prompt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header p {
+            font-size: 16px;
+            font-style: italic;
+            color: #777;
+        }
+        .content {
+            margin-top: 20px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer .thank-you {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section with Logo and Slogan -->
+    <div class="header">
+        <img src="{{ logo_url }}" alt="EduBridge Logo" />
+        <h1>EduBridge</h1>
+        <p>Discover, Empower, and Transform</p>
+    </div>
+
+    <!-- Main Content Section -->
+    <h2>Creative Writing Prompt</h2>
+    <div class="content">
+        {{ writing_prompt_content|safe }}
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>Generated on {{ generated_date }}</p>
+        <p class="thank-you">Thank you for using EduBridge!</p>
+    </div>
+</body>
+</html>

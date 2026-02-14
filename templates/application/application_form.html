@@ -1,0 +1,12 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<h2>Application  Information</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Next</button>
+</form>
+{% endblock %}
+

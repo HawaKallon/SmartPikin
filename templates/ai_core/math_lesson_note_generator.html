@@ -1,0 +1,435 @@
+{##}
+{#{% extends 'base/index.html' %}#}
+{##}
+{#{% block page_content %}#}
+{#<div class="container mt-5">#}
+{#    <!-- Header Section -->#}
+{#    <div class="text-center mb-5">#}
+{#        <h1 class="display-4 text-primary">Math Lesson Note Generator</h1>#}
+{#        <p class="lead text-muted">Create engaging and comprehensive lesson notes with theory, applications, and exercises tailored for Sierra Leone students.</p>#}
+{#    </div>#}
+{##}
+{##}
+{#    <!-- Form to Generate Lesson Note -->#}
+{#    <div class="card shadow-lg border-light rounded">#}
+{#        <div class="card-body">#}
+{#            <form method="post">#}
+{#                {% csrf_token %}#}
+{#                <div class="mb-4">#}
+{#                    <label for="topic" class="form-label fs-5 fw-bold">Enter a Math Topic:</label>#}
+{#                    <input type="text" class="form-control" id="topic" name="topic" placeholder="e.g., Chain Rule in Calculus" required>#}
+{#                </div>#}
+{#                <div class="mb-4">#}
+{#                    <label for="level" class="form-label fs-5 fw-bold">Select Educational Level:</label>#}
+{#                    <select class="form-select" id="level" name="level" required>#}
+{#                        <option value="Junior Primary">Junior Primary (Class 1-3)</option>#}
+{#                        <option value="Senior Primary">Senior Primary (Class 4-6)</option>#}
+{#                        <option value="Junior Secondary">Junior Secondary (JSS 1-3)</option>#}
+{#                        <option value="Senior Secondary">Senior Secondary (SS 1-3)</option>#}
+{#                    </select>#}
+{#                </div>#}
+{#                <div class="d-grid">#}
+{#                    <button type="submit" class="btn btn-primary btn-lg">Generate Math Lesson Note</button>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <!-- Display Generated Lesson Note or Follow-up Content -->#}
+{#    {% if lesson_note %}#}
+{#    <div class="mt-5">#}
+{#        <h2 class="h4 text-dark">Lesson Note for {{ topic }} - {{ level }}</h2>#}
+{#        <div class="card shadow-sm rounded">#}
+{#            <div class="card-body">#}
+{#                <h3 class="h5 text-success">Generated Lesson Note:</h3>#}
+{#                <div class="lesson-note-content markdown-body">#}
+{#    {{ lesson_note|safe }}#}
+{#    <script>#}
+{#        document.querySelectorAll('.markdown-body').forEach(function(el) {#}
+{#            // Render KaTeX for math and Mermaid for diagrams#}
+{#            katex.render(el.innerHTML, el, { throwOnError: false });#}
+{#            mermaid.init(undefined, el); // Ensure mermaid diagrams are rendered#}
+{#        });#}
+{#    </script>#}
+{#</div>#}
+{##}
+{#                <div class="mt-4">#}
+{#                    <a href="{% url 'ai_core:download_math_lesson' lesson_note_id %}" class="btn btn-success btn-lg">Download as PDF</a>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#    {% endif %}#}
+{##}
+{#    <!-- Display Follow-up Content (If Any) -->#}
+{#    {% if follow_up_content %}#}
+{#    <div class="mt-5">#}
+{#        <h2 class="h4 text-dark">Follow-up Content for {{ topic }} - {{ level }}</h2>#}
+{#        <div class="card shadow-sm rounded">#}
+{#            <div class="card-body">#}
+{#                <h3 class="h5 text-info">Additional Information:</h3>#}
+{#                <div class="follow-up-content markdown-body">#}
+{#                    {{ follow_up_content|safe }}#}
+{#                    <script>#}
+{#                        document.querySelectorAll('.markdown-body').forEach(function(el) {#}
+{#                            katex.render(el.innerHTML, el, { throwOnError: false });#}
+{#                        });#}
+{#                    </script>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#    {% endif %}#}
+{##}
+{#    <!-- Form for Follow-up Request -->#}
+{#    {% if lesson_note %}#}
+{#    <div class="mt-5">#}
+{#        <h3 class="h5 text-primary">Request Follow-up Content</h3>#}
+{#        <form method="post">#}
+{#            {% csrf_token %}#}
+{#            <input type="hidden" name="lesson_note_id" value="{{ lesson_note_id }}">#}
+{#            <div class="mb-4">#}
+{#                <label for="follow_up_request" class="form-label fs-5 fw-bold">Enter Your Follow-up Request:</label>#}
+{#                <textarea class="form-control" id="follow_up_request" name="follow_up_request" rows="4" placeholder="e.g., Provide more examples or clarify a specific concept." required></textarea>#}
+{#            </div>#}
+{#            <div class="d-grid">#}
+{#                <button type="submit" class="btn btn-warning btn-lg">Generate Follow-up Content</button>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#    {% endif %}#}
+{#</div>#}
+{#{% endblock %}#}
+{#{% block scripts %}#}
+{#	<script type="module">#}
+{#    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';#}
+{#    mermaid.initialize({ startOnLoad: true });#}
+{#</script>#}
+{##}
+{#{% endblock %}#}
+{##}
+{#{% block style %}#}
+{#<style>#}
+{#    /* Improved Table Styling */#}
+{#    .markdown-body table {#}
+{#        width: 100%;#}
+{#        border-collapse: collapse;#}
+{#        margin-bottom: 1em;#}
+{#        background-color: #ffffff; /* White background for contrast */#}
+{#        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */#}
+{#        border-radius: 8px;#}
+{#    }#}
+{#    .markdown-body th, .markdown-body td {#}
+{#        padding: 15px 20px;#}
+{#        text-align: left;#}
+{#        font-size: 1rem;#}
+{#    }#}
+{#    .markdown-body th {#}
+{#        background-color: #4CAF50; /* Fresh green for header */#}
+{#        color: white;#}
+{#        font-weight: 600;#}
+{#    }#}
+{#    .markdown-body tr:nth-child(even) {#}
+{#        background-color: #f7f7f7; /* Subtle stripe effect */#}
+{#    }#}
+{#    .markdown-body tr:hover {#}
+{#        background-color: #e0f7fa; /* Light hover effect for rows */#}
+{#        cursor: pointer;#}
+{#    }#}
+{#    .markdown-body td {#}
+{#        border: 1px solid #ddd; /* Border to define cell boundaries */#}
+{#    }#}
+{##}
+{#    /* Styled Mathematics Equations */#}
+{#    .markdown-body .math {#}
+{#        font-family: 'Georgia', serif;#}
+{#        font-size: 1.25rem;#}
+{#        color: #333;#}
+{#        background-color: #f9f9f9;#}
+{#        padding: 10px 14px;#}
+{#        border-radius: 8px;#}
+{#        display: inline-block;#}
+{#        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);#}
+{#    }#}
+{##}
+{#    /* Customizing Button Styles */#}
+{#    .btn {#}
+{#        font-size: 1.1rem;#}
+{#        padding: 12px 20px;#}
+{#        border-radius: 8px;#}
+{#        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);#}
+{#    }#}
+{#    .btn-primary {#}
+{#        background-color: #007bff;#}
+{#        border-color: #007bff;#}
+{#    }#}
+{#    .btn-primary:hover {#}
+{#        background-color: #0056b3;#}
+{#        border-color: #0056b3;#}
+{#    }#}
+{#    .btn-success {#}
+{#        background-color: #28a745;#}
+{#        border-color: #28a745;#}
+{#    }#}
+{#    .btn-success:hover {#}
+{#        background-color: #218838;#}
+{#        border-color: #1e7e34;#}
+{#    }#}
+{#    .btn-warning {#}
+{#        background-color: #ffc107;#}
+{#        border-color: #ffc107;#}
+{#    }#}
+{#    .btn-warning:hover {#}
+{#        background-color: #e0a800;#}
+{#        border-color: #d39e00;#}
+{#    }#}
+{##}
+{#    /* Additional Form Styling */#}
+{#    .form-control {#}
+{#        border-radius: 8px;#}
+{#        padding: 12px;#}
+{#        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);#}
+{#    }#}
+{##}
+{#    .form-select {#}
+{#        border-radius: 8px;#}
+{#        padding: 12px;#}
+{#        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);#}
+{#    }#}
+{##}
+{#    .text-primary {#}
+{#        color: #007bff;#}
+{#    }#}
+{#    .text-success {#}
+{#        color: #28a745;#}
+{#    }#}
+{#    .text-info {#}
+{#        color: #17a2b8;#}
+{#    }#}
+{#    .text-muted {#}
+{#        color: #6c757d;#}
+{#    }#}
+{#</style>#}
+{#{% endblock %}#}
+{% extends 'base/index.html' %}
+{% block page_content %}
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-primary">Math Lesson Note Generator</h1>
+        <p class="lead text-muted">Create engaging and comprehensive lesson notes with theory, applications, and exercises.</p>
+    </div>
+
+    <!-- Form to Generate Lesson Note -->
+    <div class="card shadow-lg border-light rounded">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="topic" class="form-label fs-5 fw-bold">Enter a Math Topic:</label>
+                    <input type="text" class="form-control" id="topic" name="topic" placeholder="e.g., Chain Rule in Calculus" required>
+                </div>
+                <div class="mb-4">
+                    <label for="level" class="form-label fs-5 fw-bold">Select Educational Level:</label>
+                    <select class="form-select" id="level" name="level" required>
+                        <option value="Junior Primary">Junior Primary (Class 1-3)</option>
+                        <option value="Senior Primary">Senior Primary (Class 4-6)</option>
+                        <option value="Junior Secondary">Junior Secondary (JSS 1-3)</option>
+                        <option value="Senior Secondary">Senior Secondary (SS 1-3)</option>
+                    </select>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Generate Math Lesson Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display Generated Lesson Note or Follow-up Content -->
+    {% if lesson_note %}
+    <div class="mt-5">
+        <h2 class="h4 text-dark">Lesson Note for {{ topic }} - {{ level }}</h2>
+        <div class="card shadow-sm rounded">
+            <div class="card-body">
+                <h3 class="h5 text-success">Generated Lesson Note:</h3>
+                <div class="lesson-note-content markdown-body">{{ lesson_note|safe }}</div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                                { left: "$$", right: "$$", display: true },
+                                { left: "\\[", right: "\\]", display: true },
+                                { left: "$", right: "$", display: false },
+                                { left: "\\(", right: "\\)", display: false }
+                            ]
+                        });
+                        mermaid.initialize({ startOnLoad: true });
+                    });
+                </script>
+                <div class="mt-4">
+                    <a href="{% url 'ai_core:download_math_lesson' lesson_note_id %}" class="btn btn-success btn-lg">Download as PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Follow-up Content and Request Form -->
+    {% if follow_up_content %}
+    <div class="mt-5">
+        <h2 class="h4 text-dark">Follow-up Content for {{ topic }} - {{ level }}</h2>
+        <div class="card shadow-sm rounded">
+            <div class="card-body">
+                <h3 class="h5 text-info">Additional Information:</h3>
+                <div class="follow-up-content markdown-body">{{ follow_up_content|safe }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if lesson_note %}
+    <div class="mt-5">
+        <h3 class="h5 text-primary">Request Follow-up Content</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="lesson_note_id" value="{{ lesson_note_id }}">
+            <div class="mb-4">
+                <label for="follow_up_request" class="form-label fs-5 fw-bold">Enter Your Follow-up Request:</label>
+                <textarea class="form-control" id="follow_up_request" name="follow_up_request" rows="4" placeholder="e.g., Provide more examples or clarify a specific concept." required></textarea>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-warning btn-lg">Generate Follow-up Content</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- KaTeX for Math Rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js"></script>
+
+<!-- Mermaid for Diagram Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\[", right: "\\]", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false }
+            ]
+        });
+        mermaid.initialize({ startOnLoad: true });
+        mermaid.contentLoaded();
+    });
+</script>
+{% endblock %}
+
+
+{% block style %}
+<style>
+    /* Improved Table Styling */
+    .markdown-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1em;
+        background-color: #ffffff; /* White background for contrast */
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+        border-radius: 8px;
+    }
+    .markdown-body th, .markdown-body td {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 1rem;
+    }
+    .markdown-body th {
+        background-color: #4CAF50; /* Fresh green for header */
+        color: white;
+        font-weight: 600;
+    }
+    .markdown-body tr:nth-child(even) {
+        background-color: #f7f7f7; /* Subtle stripe effect */
+    }
+    .markdown-body tr:hover {
+        background-color: #e0f7fa; /* Light hover effect for rows */
+        cursor: pointer;
+    }
+    .markdown-body td {
+        border: 1px solid #ddd; /* Border to define cell boundaries */
+    }
+
+    /* Styled Mathematics Equations */
+    .markdown-body .math {
+        font-family: 'Georgia', serif;
+        font-size: 1.25rem;
+        color: #333;
+        background-color: #f9f9f9;
+        padding: 10px 14px;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Customizing Button Styles */
+    .btn {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    /* Additional Form Styling */
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-select {
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .text-primary {
+        color: #007bff;
+    }
+    .text-success {
+        color: #28a745;
+    }
+    .text-info {
+        color: #17a2b8;
+    }
+    .text-muted {
+        color: #6c757d;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'base/index.html' %}
+{% load custom_filters %}
+
+{% block page_content %}
+<div class="application-wrapper" style="padding-top: 80px;">
+    <div class="application-title">
+        <h1>Application for {{ school.name }}</h1>
+    </div>
+    <div class="application-header">
+        <!-- School Info on the Left -->
+        <div class="school-info">
+            {% if school.logo %}
+                <img src="{{ school.logo.url }}" alt="{{ school.name }} Logo" class="school-logo">
+            {% endif %}
+            <h1 class="school-name">{{ school.name }}</h1>
+            <p class="school-mission">{{ school.school_motto }}</p>
+        </div>
+        <!-- Content on the Right -->
+        <div class="application-content">
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar"
+                     style="width: {{ wizard.steps.current|add:1|div:wizard.steps.count|multiply:100 }}%;">
+                    {{ wizard.steps.current|add:1|div:wizard.steps.count|multiply:100|floatformat:0 }}%
+                </div>
+            </div>
+            <form method="post" enctype="multipart/form-data" class="application-form" >
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                <div class="form-fields">
+                    {{ form.as_p }}
+                </div>
+                <div class="form-navigation">
+                    {% if wizard.steps.prev %}
+                        <a href="{{ wizard.get_prev_step_url }}" class="btn btn-secondary">Previous</a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">
+                        {% if wizard.steps.next %}
+                            Next
+                        {% else %}
+                            Submit
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Wrapper for Application Form */
+    .application-wrapper {
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Title Section */
+    .application-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .application-title h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    /* Application Header Layout */
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* School Info Section */
+    .school-info {
+        flex: 1;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .school-logo {
+        max-width: 120px;
+        height: auto;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+    .school-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 10px;
+    }
+    .school-mission {
+        font-size: 1rem;
+        color: #7f8c8d;
+    }
+
+    /* Form Content Section */
+    .application-content {
+        flex: 2;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+        position: relative;
+        background-color: #e0e0e0;
+        height: 15px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        background-image: linear-gradient(to right, #4CAF50, #3498db);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease-in-out;
+        text-align: right;
+        color: white;
+        font-size: 0.9rem;
+        line-height: 15px;
+        padding-right: 10px;
+        box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Form Fields */
+    .application-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .form-fields p {
+        margin: 0;
+    }
+
+    /* Navigation Buttons */
+    .form-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+    .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .application-header {
+            flex-direction: column;
+        }
+        .school-info,
+        .application-content {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

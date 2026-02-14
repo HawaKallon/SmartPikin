@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+venv/
+.env/
+
+# Django
+db.sqlite3
+media/
+uploads/
+
+# AI / Vector indexes
+faiss_index.index
+
+# Data files
+data/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/

@@ -1,0 +1,215 @@
+
+{% extends "base/index.html" %}
+{% load static %}
+
+{% block page_content %}
+<!-- Hero Section -->
+<section class="hero position-relative text-center text-white d-flex align-items-center justify-content-center" 
+         style="background-image: url('{% static 'core/images/django6.png' %}'); background-size: cover; background-position: center; min-height: 500px;">
+    <!-- Overlay -->
+    <div class="overlay position-absolute w-100 h-100" style="background: rgba(0, 0, 0, 0.6);"></div>
+    
+    <!-- Hero Content -->
+    <div class="container position-relative z-2 text-shadow">
+        <h1 class="display-4 fw-bold mb-3" style="color: #FFD700;">Welcome to AI-Powered Report Analysis</h1>
+        <p class="lead" style="color: #00FFFF;">
+            Using cutting-edge artificial intelligence, analyze report cards, improve student performance, 
+            and generate actionable insights. Evaluate grades, attendance, and teacher feedback with ease.
+        </p>
+        <a href="#submission-section" class="btn btn-primary btn-lg mt-3">Get Started</a>
+    </div>
+</section>
+
+<!-- Report Card Submission Section -->
+<div id="submission-section" class="container-fluid py-5" style="background-color: #f5f7fa; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8 bg-white rounded shadow-sm p-5">
+            <h2 class="text-primary text-center fw-bold mb-4">Submit Your Report Card for AI Analysis</h2>
+
+            <form method="post" id="wizardForm">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+
+                <!-- Step One -->
+                {% if wizard.steps.current == "0" %}
+                <div class="mb-3">
+                    {{ wizard.form.student_name.label_tag }}
+                    {{ wizard.form.student_name }}
+                </div>
+                <div class="mb-3">
+                    {{ wizard.form.class_level.label_tag }}
+                    {{ wizard.form.class_level }}
+                </div>
+                <div class="mb-3">
+                    {{ wizard.form.attendance_percentage.label_tag }}
+                    {{ wizard.form.attendance_percentage }}
+                </div>
+                <div class="mb-3">
+                    {{ wizard.form.teacher_comments.label_tag }}
+                    {{ wizard.form.teacher_comments }}
+                </div>
+                {% endif %}
+
+                <!-- Step Two -->
+                {% if wizard.steps.current == "1" %}
+                <div id="dynamic-subjects-section" class="mb-4">
+                    <h4 class="text-primary mb-3">Add Subjects and Grades</h4>
+                    <div id="subjects-container">
+                        <div class="subject-entry d-flex gap-2 align-items-center mb-3">
+                            <input type="text" placeholder="Subject Name" class="form-control subject-name" required>
+                            <input type="number" placeholder="Grade" class="form-control subject-grade" required>
+                            <button type="button" class="remove-subject btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-subject" class="btn btn-outline-primary mt-2">Add Subject</button>
+                </div>
+                {% endif %}
+
+                <!-- Step Three -->
+                {% if wizard.steps.current == "2" %}
+                <div class="form-check mb-3">
+                    {{ wizard.form.payment_confirmation }}
+                    {{ wizard.form.payment_confirmation.label_tag }}
+                </div>
+                {% endif %}
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    {% if wizard.steps.prev %}
+                    <button type="submit" name="wizard_goto_step" value="{{ wizard.steps.prev }}" class="btn btn-secondary">Back</button>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+/* General Styles */
+.container-fluid {
+    background-color: #f5f7fa;
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero .text-shadow {
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.hero .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+}
+
+.hero .btn {
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border-radius: 50px;
+}
+
+/* Report Card Submission */
+.bg-white {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.text-primary {
+    color: #007bff;
+}
+
+#subjects-container .subject-entry {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.subject-entry .remove-subject {
+    background-color: #ff4d4f;
+    color: #fff;
+}
+
+.subject-entry .remove-subject:hover {
+    background-color: #d43536;
+}
+
+button.btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const addSubjectButton = document.getElementById('add-subject');
+    const subjectsContainer = document.getElementById('subjects-container');
+    const hiddenSubjectsInput = document.querySelector('[name="subjects"]'); // Hidden JSONField input
+
+    function updateHiddenSubjectsField() {
+        // Serialize all subject entries into JSON
+        const subjectEntries = Array.from(subjectsContainer.querySelectorAll('.subject-entry'));
+        const subjectsData = subjectEntries.map(entry => {
+            const subjectName = entry.querySelector('.subject-name').value.trim();
+            const subjectGrade = entry.querySelector('.subject-grade').value.trim();
+            if (subjectName && subjectGrade) {
+                return { [subjectName]: parseFloat(subjectGrade) };
+            }
+        }).filter(Boolean); // Remove empty or invalid entries
+        hiddenSubjectsInput.value = JSON.stringify(Object.assign({}, ...subjectsData)); // Save as JSON object
+    }
+
+    if (addSubjectButton && subjectsContainer) {
+        // Add a new subject entry
+        addSubjectButton.addEventListener('click', function () {
+            const subjectEntry = document.createElement('div');
+            subjectEntry.classList.add('subject-entry', 'd-flex', 'gap-2', 'align-items-center', 'mb-2');
+            subjectEntry.innerHTML = `
+                <input type="text" placeholder="Subject Name" class="form-control subject-name" required>
+                <input type="number" placeholder="Grade" class="form-control subject-grade" required>
+                <button type="button" class="remove-subject btn btn-danger">Remove</button>
+            `;
+            subjectsContainer.appendChild(subjectEntry);
+
+            // Attach remove functionality to the remove button
+            subjectEntry.querySelector('.remove-subject').addEventListener('click', function () {
+                subjectEntry.remove();
+                updateHiddenSubjectsField(); // Update hidden field after removing
+            });
+
+            // Update the hidden field when input changes
+            subjectEntry.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', updateHiddenSubjectsField);
+            });
+        });
+    }
+
+    // Update the hidden field before form submission
+    const wizardForm = document.getElementById('wizardForm');
+    if (wizardForm) {
+        wizardForm.addEventListener('submit', function () {
+            updateHiddenSubjectsField(); // Ensure hidden input is updated on form submit
+        });
+    }
+});
+
+</script>
+{% endblock %}

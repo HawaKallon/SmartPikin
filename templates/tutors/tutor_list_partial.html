@@ -1,0 +1,129 @@
+{% load static %}
+<div class="row g-4 tutors-row">
+    {% if tutors %}
+        {% for tutor in tutors %}
+            <!-- Tutor Card -->
+            <div class="col-lg-6 col-xl-4">
+                <div class="tutor-item d-flex flex-column h-100 position-relative overflow-hidden">
+                    <!-- Tutor Image -->
+                    <div class="tutor-img">
+                        {% if tutor.profile_image %}
+                            <img src="{{ tutor.profile_image.url }}" class="img-fluid w-100 lazy-load" alt="{{ tutor.user.first_name }} {{ tutor.user.last_name }}'s Image">
+                        {% else %}
+                            <img src="{% static 'core/images/default_profile.png' %}" class="img-fluid w-100" alt="Default Tutor Image">
+                        {% endif %}
+                    </div>
+
+                    <!-- Tutor Details -->
+                    <div class="tutor-content p-4 flex-grow-1 bg-light">
+                        <h4 class="mb-2 text-dark">
+                            <a href="#" class="text-decoration-none tutor-name" data-bs-toggle="tooltip" title="Click for more info">
+                                {{ tutor.user.first_name }} {{ tutor.user.last_name }}
+                            </a>
+                        </h4>
+
+                        <!-- Education Info -->
+                        {% if tutor.highest_education or tutor.institution_name or tutor.graduation_year %}
+                            <div class="mb-3">
+                                <strong>Education:</strong>
+                                <p>
+                                    {% if tutor.highest_education %}
+                                        {{ tutor.highest_education }} degree
+                                    {% endif %}
+                                    {% if tutor.institution_name %}
+                                        from {{ tutor.institution_name }}{% if tutor.graduation_year %}, graduated in {{ tutor.graduation_year }}{% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Education details not available</p>
+                        {% endif %}
+
+                        <!-- Specialization Info -->
+                        {% if tutor.subjects_expert_in.all %}
+                            <div class="mb-3">
+                                <strong>Specialization:</strong>
+                                <p>
+                                    {% for subject in tutor.subjects_expert_in.all %}
+                                        <span class="badge bg-primary">{{ subject.name }}</span>
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No specialization listed</p>
+                        {% endif %}
+
+                        <!-- Bio Button -->
+                        <button class="btn btn-outline-primary btn-sm bio-btn" data-bs-toggle="modal" data-bs-target="#bioModal{{ tutor.id }}">
+                            Bio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Bio -->
+            <div class="modal fade" id="bioModal{{ tutor.id }}" tabindex="-1" aria-labelledby="bioModalLabel{{ tutor.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="bioModalLabel{{ tutor.id }}">Bio of {{ tutor.user.first_name }} {{ tutor.user.last_name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>{{ tutor.bio|linebreaks }}</p>
+                            {% if tutor.certifications %}
+                                <div class="mb-3">
+                                    <strong>Certifications:</strong>
+                                    <p>{{ tutor.certifications }}</p>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No certifications listed</p>
+                            {% endif %}
+                            {% if tutor.hourly_rate %}
+                                <div class="mb-3">
+                                    <strong>Hourly Rate:</strong>
+                                    <p>${{ tutor.hourly_rate }}</p>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">Hourly rate not available</p>
+                            {% endif %}
+                            {% if tutor.rating %}
+                                <div class="mb-3">
+                                    <strong>Rating:</strong>
+                                    <p><span class="badge bg-warning text-dark">{{ tutor.rating }} / 5</span></p>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No ratings available</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        <div class="pagination d-flex justify-content-center mt-4">
+            <span class="mr-2">Page {{ tutors.number }} of {{ tutors.paginator.num_pages }}</span>
+            {% if tutors.has_previous %}
+                <a href="?page=1&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">First</a>
+                <a href="?page={{ tutors.previous_page_number }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Previous</a>
+            {% endif %}
+            {% for num in tutors.paginator.page_range %}
+                {% if tutors.number == num %}
+                    <span class="btn btn-light mx-1">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary mx-1">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if tutors.has_next %}
+                <a href="?page={{ tutors.next_page_number }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Next</a>
+                <a href="?page={{ tutors.paginator.num_pages }}&{{ request.GET.urlencode }}" class="btn btn-primary mx-1">Last</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p class="text-center">No tutors found.</p>
+    {% endif %}
+</div>

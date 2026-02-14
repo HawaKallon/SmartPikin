@@ -1,0 +1,31 @@
+{% extends 'application/application_wizard.html' %}
+
+{% block title %}School Details{% endblock %}
+
+{% block page_content %}
+<div class="wizard-content">
+    <h4>Step 4: School Details</h4>
+    <p>Please select your application type, school level, and class level.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-between mt-4">
+            {% if wizard.steps.prev %}
+                <button type="submit" name="wizard_goto_step" value="{{ wizard.steps.prev }}" class="btn btn-secondary">
+                    Previous
+                </button>
+            {% endif %}
+            {% if wizard.steps.next %}
+                <button type="submit" name="wizard_goto_step" value="{{ wizard.steps.next }}" class="btn btn-primary">
+                    Next
+                </button>
+            {% else %}
+                <button type="submit" class="btn btn-success">
+                    Submit
+                </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="container mt-5 px-3" style="padding-top: 80px;">
+  <!-- Title and Description Section -->
+  <div class="text-center mb-5">
+    <h1 class="display-4 text-primary">Write Your African Story</h1>
+    <p class="lead text-muted">Unleash your creativity! Explore genres, tones, and settings tailored for storytellers in Sierra Leone and beyond.</p>
+    <p class="text-muted fst-italic">"Stories hold the wisdom of our ancestors, guiding voices for tomorrow." – African Proverb</p>
+  <!-- SVG Icons -->#}
+    <div class="d-flex justify-content-center mt-4 icon-row">
+      <div class="icon me-3">
+        <svg width="50" height="50" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 0C18.7 0 8 10.7 8 24c0 7 3 13.3 7.9 17.8L32 64l16.1-22.2c4.9-4.5 7.9-10.8 7.9-17.8C56 10.7 45.3 0 32 0z" fill="#6a7dce"/>
+        </svg>
+      </div>
+      <div class="icon me-3">
+        <svg width="50" height="50" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8C2 5.8 3.8 4 6 4H36C38.2 4 40 5.8 40 8V56C40 58.2 38.2 60 36 60H6C3.8 60 2 58.2 2 56V8Z" fill="#f9b234"/>
+          <path d="M42 8C42 5.8 43.8 4 46 4H58C60.2 4 62 5.8 62 8V56C62 58.2 60.2 60 58 60H46C43.8 60 42 58.2 42 56V8Z" fill="#f98134"/>
+        </svg>
+      </div>
+      <div class="icon me-3">
+        <svg width="50" height="50" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path d="M56 0L64 8L22 50L14 42L56 0Z" fill="#f98134"/>
+          <path d="M14 42L10 50L2 62L10 54L18 50L14 42Z" fill="#ffd93b"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+
+
+  <!-- Creative Writing Prompt Form -->
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <form method="POST" id="creative-writing-form">
+        {% csrf_token %}
+        <!-- Form Sections in a Horizontal Flex Layout -->
+        <div class="d-flex flex-wrap mb-3">
+          <!-- Genre Selection -->
+          <div class="flex-item me-3">
+            <label for="genre" class="form-label">Genre:</label>
+            <select name="genre" id="genre" class="form-select" required>
+              <option value="adventure">Adventure</option>
+              <option value="mystery">Mystery</option>
+              <option value="historical">Historical Fiction</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="realism">Realism</option>
+              <option value="comedy">Comedy</option>
+              <option value="official">Official</option>
+              <option value="article">Article</option>
+              <option value="drama">Drama</option>
+              <option value="folktale">Folktale</option>
+            </select>
+          </div>
+          <!-- Tone Selection -->
+          <div class="flex-item me-3">
+            <label for="tone" class="form-label">Tone:</label>
+            <select name="tone" id="tone" class="form-select" required>
+              <option value="inspirational">Inspirational</option>
+              <option value="playful">Playful</option>
+              <option value="serious">Serious</option>
+              <option value="sad">Sad</option>
+              <option value="legal">Legal and Justice</option>
+              <option value="hopeful">Hopeful</option>
+              <option value="emotional">Emotional</option>
+              <option value="humorous">Humorous</option>
+            </select>
+          </div>
+          <!-- Writing Level -->
+          <div class="flex-item me-3">
+            <label for="level" class="form-label">Level:</label>
+            <select name="level" id="level" class="form-select" required>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <!-- Location -->
+          <div class="flex-item">
+            <label for="location" class="form-label">Location:</label>
+            <select name="location" id="location" class="form-select" required>
+              <option value="freetown">Freetown</option>
+              <option value="kenema">Kenema</option>
+              <option value="bo">Bo</option>
+              <option value="makeni">Makeni</option>
+              <option value="portloko">Port Loko</option>
+              <option value="kailahun">Kailahun</option>
+              <option value="kabala">Kabala</option>
+              <option value="kono">Kono</option>
+              <option value="moyamba">Moyamba</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Additional Fields -->
+        <div class="mb-3">
+          <label for="theme" class="form-label">Theme of Your Story:</label>
+          <input type="text" name="theme" id="theme" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="plot" class="form-label">Plot of Your Story:</label>
+          <textarea name="plot" id="plot" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="idea" class="form-label">Story Idea:</label>
+          <textarea name="idea" id="idea" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="title" class="form-label">Title of Your Story:</label>
+          <input type="text" name="title" id="title" class="form-control" required>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Generate Story Prompt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Display Writing Prompt Section -->
+  {% if writing_prompt %}
+    <div class="mt-5">
+      <h2>Generated Story Prompt</h2>
+      <div class="p-3 bg-light border">
+        {{ writing_prompt|safe }}
+      </div>
+        <a href="{% url 'ai_core:download_writing_prompt_pdf' writing_prompt_id %}" class="btn btn-download mt-2">Download as PDF</a>
+      <div class="mt-3">
+        <button class="btn btn-secondary" id="follow-up-button">Request Follow-Up</button>
+      </div>
+    </div>
+  {% endif %}
+
+{% if writing_prompt  %}
+    <div class="mt-5">
+      <h2>Generated Story Prompt</h2>
+      <div class="p-3 bg-light border">
+        {{ writing_prompt|safe }}
+      </div>
+        <a href="{% url 'ai_core:download_writing_prompt_pdf' writing_prompt_id %}" class="btn btn-download mt-2">Download as PDF</a>
+      <div class="mt-3">
+        <button class="btn btn-secondary" id="follow-up-button">Request Follow-Up</button>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Follow-Up Request Form -->
+  <div id="follow-up-form" class="mt-4" style="display: none;">
+    <form method="POST" action="{% url 'ai_core:creative_writing' %}">
+      {% csrf_token %}
+      <input type="hidden" name="writing_prompt_id" value="{{ writing_prompt_id }}">
+      <div class="mb-3">
+        <label for="follow_up_request" class="form-label">Follow-Up Request:</label>
+        <textarea name="follow_up_request" id="follow_up_request" class="form-control" rows="3" required></textarea>
+      </div>
+      <div class="d-grid">
+        <button type="submit" class="btn btn-info">Submit Follow-Up Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Show follow-up request form when button is clicked
+  document.getElementById("follow-up-button").addEventListener("click", function() {
+    document.getElementById("follow-up-form").style.display = "block";
+  });
+</script>
+
+{% endblock %}
+{% block style %}
+	<style>
+  .container { max-width: 800px; }
+  .icon-row .icon svg { transition: transform 0.2s; }
+  .icon-row .icon:hover svg { transform: scale(1.1); }
+  .card { border: none; border-radius: 10px; background: linear-gradient(145deg, #ffffff, #e6e6e6); box-shadow: 8px 8px 15px #d1d1d1, -8px -8px 15px #ffffff; }
+  .writing-prompt-box { background-color: #f8f9fa; border: 1px solid #ddd; white-space: pre-wrap; font-size: 1.1rem; }
+  .btn-primary { background: linear-gradient(90deg, #6a7dce, #f98134); border-color: #f98134; }
+  .d-flex.flex-wrap .flex-item { flex: 1 1 20%; margin-bottom: 10px; }
+  .btn-download { color: #fff; background: #6a7dce; padding: 10px 20px; font-weight: 600; transition: background-color 0.2s; }
+  .btn-download:hover { background-color: #f98134; color: #fff; text-decoration: none; }
+  .container { max-width: 800px; }
+  @media (max-width: 576px) { .container { padding: 0 15px; } .lead { font-size: 1rem; } }
+</style>
+{% endblock %}
