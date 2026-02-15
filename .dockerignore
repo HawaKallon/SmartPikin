@@ -1,0 +1,13 @@
+.venv
+venv
+__pycache__
+*.pt
+*.bin
+*.model
+*.onnx
+node_modules
+.git
+.gitignore
+*.pyc
+faiss_index.index
+faiss_index_handbooks.index

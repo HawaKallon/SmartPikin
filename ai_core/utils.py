@@ -4,31 +4,76 @@ from django.template.loader import render_to_string
 from django.contrib import messages
 import datetime
 import os
-import numpy as np
-import faiss
+import json
+import math
+import logging
 from PyPDF2 import PdfReader
-from sentence_transformers import SentenceTransformer
-from .models import DocumentChunk
+from django.conf import settings
 
-FAISS_INDEX_PATH = "faiss_index.index"
+from google import genai
+
+logger = logging.getLogger(__name__)
+
+# Configure Google GenAI client
+genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+EMBEDDING_MODEL = "text-embedding-004"
+
+
+def get_embedding(text):
+    """Get embedding vector from Google GenAI."""
+    result = genai_client.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=text,
+    )
+    return result.embeddings[0].values
+
+
+def get_query_embedding(text):
+    """Get embedding vector for a query from Google GenAI."""
+    result = genai_client.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=text,
+    )
+    return result.embeddings[0].values
+
+
+def cosine_similarity(vec_a, vec_b):
+    """Compute cosine similarity between two vectors."""
+    dot = sum(a * b for a, b in zip(vec_a, vec_b))
+    norm_a = math.sqrt(sum(a * a for a in vec_a))
+    norm_b = math.sqrt(sum(b * b for b in vec_b))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def embedding_to_bytes(embedding):
+    """Serialize embedding list to bytes for database storage."""
+    return json.dumps(embedding).encode('utf-8')
+
+
+def embedding_from_bytes(data):
+    """Deserialize embedding from bytes."""
+    return json.loads(data.decode('utf-8'))
 
 
 def process_pdf_in_batches(pdf_path, document_type, batch_size=100):
+    from .models import DocumentChunk
+
     reader = PdfReader(pdf_path)
     text = "".join([page.extract_text() for page in reader.pages])
-    chunks = [text[i:i + 300] for i in range(0, len(text), 300)]  # Split into chunks
-
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    chunks = [text[i:i + 300] for i in range(0, len(text), 300)]
 
     for i in range(0, len(chunks), batch_size):
         batch_chunks = chunks[i:i + batch_size]
-        embeddings = [model.encode(chunk) for chunk in batch_chunks]
+        embeddings = [get_embedding(chunk) for chunk in batch_chunks]
 
         DocumentChunk.objects.bulk_create([
             DocumentChunk(
                 document_type=document_type,
                 chunk_text=chunk,
-                embedding=np.array(embedding).tobytes(),
+                embedding=embedding_to_bytes(embedding),
                 metadata={"source": pdf_path}
             )
             for chunk, embedding in zip(batch_chunks, embeddings)
@@ -36,41 +81,43 @@ def process_pdf_in_batches(pdf_path, document_type, batch_size=100):
 
 
 def update_pdf_data(pdf_path, document_type):
+    from .models import DocumentChunk
+
     reader = PdfReader(pdf_path)
     text = "".join([page.extract_text() for page in reader.pages])
     chunks = [text[i:i + 300] for i in range(0, len(text), 300)]
 
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
     for chunk in chunks:
         if not DocumentChunk.objects.filter(chunk_text=chunk, document_type=document_type).exists():
-            embedding = model.encode(chunk)
+            embedding = get_embedding(chunk)
             DocumentChunk.objects.create(
                 document_type=document_type,
                 chunk_text=chunk,
-                embedding=np.array(embedding).tobytes(),
+                embedding=embedding_to_bytes(embedding),
                 metadata={"source": pdf_path}
             )
 
 
-def build_faiss_index():
-    chunks = DocumentChunk.objects.all()
-    embeddings = [np.frombuffer(chunk.embedding, dtype=np.float32) for chunk in chunks]
-    embedding_dim = embeddings[0].shape[0] if embeddings else 768
+def search_similar_chunks(query, chunks=None, top_k=5):
+    """Search for similar chunks using cosine similarity (replaces FAISS)."""
+    from .models import DocumentChunk
 
-    index = faiss.IndexFlatL2(embedding_dim)
-    if embeddings:
-        index.add(np.array(embeddings))
+    if chunks is None:
+        chunks = DocumentChunk.objects.all()
 
-    faiss.write_index(index, FAISS_INDEX_PATH)
-    return index
+    query_embedding = get_query_embedding(query)
 
+    scored_chunks = []
+    for chunk in chunks:
+        try:
+            chunk_embedding = embedding_from_bytes(chunk.embedding)
+            score = cosine_similarity(query_embedding, chunk_embedding)
+            scored_chunks.append((score, chunk))
+        except Exception:
+            continue
 
-def load_faiss_index():
-    if os.path.exists(FAISS_INDEX_PATH):
-        return faiss.read_index(FAISS_INDEX_PATH)
-    else:
-        return build_faiss_index()
+    scored_chunks.sort(key=lambda x: x[0], reverse=True)
+    return [chunk for _, chunk in scored_chunks[:top_k]]
 
 
 def generate_pdf(html_content, output_filename='document.pdf', options=None):

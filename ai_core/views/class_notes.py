@@ -1,7 +1,5 @@
 
 import os
-import numpy as np
-import faiss
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,12 +10,11 @@ import logging
 from langchain_groq import ChatGroq
 from groq import Groq
 from langchain_core.prompts import ChatPromptTemplate
-from sentence_transformers import SentenceTransformer
 
 from ai_core.models import ResourceModel, ResourceType, ClassLevel, DifficultyLevel, DocumentChunk, SubjectChoices
 import PyPDF2
 from django.core.files.storage import default_storage
-from ai_core.utils import extract_text_from_pdf
+from ai_core.utils import extract_text_from_pdf, search_similar_chunks
 
 logger = logging.getLogger(__name__)
 os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
@@ -25,17 +22,6 @@ groq_client = Groq(api_key=settings.GROQ_API_KEY)
 
 # Initialize Llama 3 with Groq LPU
 chat = ChatGroq(temperature=0, model_name="deepseek-r1-distill-llama-70b")
-
-# FAISS index path
-FAISS_INDEX_PATH = os.path.join(settings.BASE_DIR, "faiss_index_handbooks.index")
-
-# Load FAISS index
-if os.path.exists(FAISS_INDEX_PATH):
-    faiss_index = faiss.read_index(FAISS_INDEX_PATH)
-else:
-    faiss_index = None
-
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # System and human prompts (unchanged)
 system_prompt = (
@@ -174,22 +160,16 @@ class QuestionBankGeneratorView(LoginRequiredMixin, View):
             return render(request, self.template_name)
 
     def retrieve_relevant_chunks(self, topic):
-        """Retrieve relevant document chunks using FAISS index."""
-        if not faiss_index:
-            logger.warning("FAISS index not found. Skipping chunk retrieval.")
+        """Retrieve relevant document chunks using cosine similarity search."""
+        try:
+            handbook_chunks = DocumentChunk.objects.filter(
+                document_type__in=["Primary School Handbook", "JSS Handbook", "SSS Handbook"]
+            )
+            relevant = search_similar_chunks(topic, chunks=handbook_chunks, top_k=5)
+            return [chunk.chunk_text for chunk in relevant]
+        except Exception as e:
+            logger.warning(f"Error retrieving chunks: {e}")
             return []
-
-        # Encode topic and search FAISS index
-        topic_embedding = embedding_model.encode(topic).reshape(1, -1).astype(np.float32)
-        k = 5  # Retrieve top-k relevant chunks
-        distances, indices = faiss_index.search(topic_embedding, k)
-
-        # Fetch chunks from the database
-        return [
-            chunk.chunk_text
-            for idx in indices[0]
-            if idx != -1 and (chunk := DocumentChunk.objects.filter(id=idx).first())
-        ]
 
     def generate_question_content(self, class_level, topic, subject, resource_type, difficulty_level, number_of_questions, pdf_text=None, relevant_chunks=None):
         """Generate question content using AI based on input parameters."""
