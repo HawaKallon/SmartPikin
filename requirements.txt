@@ -1,4 +1,4 @@
-Django
+Django==5.1.15
 gunicorn
 django-environ
 django-widget-tweaks
@@ -13,6 +13,6 @@ pdfkit
 pdfplumber
 pillow
 requests
-markdown
+markdown2
 qrcode
 whitenoise
