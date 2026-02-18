@@ -87,3 +87,75 @@ class ResourceModel(models.Model):
 
     def __str__(self):
         return f"{self.class_level} - {self.topic} ({self.resource_type} - {self.difficulty_level})"
+
+
+class QuizSession(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quiz_sessions')
+    topic = models.CharField(max_length=255)
+    subject = models.CharField(max_length=100)
+    level = models.CharField(max_length=20, choices=ClassLevel.choices)
+    score = models.PositiveIntegerField(default=0)
+    total_questions = models.PositiveIntegerField(default=5)
+    quiz_data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.topic} ({self.score}/{self.total_questions})"
+
+
+class FlashcardSet(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='flashcard_sets')
+    topic = models.CharField(max_length=255)
+    level = models.CharField(max_length=20, choices=ClassLevel.choices)
+    cards = models.JSONField()
+    total_cards = models.PositiveIntegerField(default=5)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.topic} ({self.total_cards} cards)"
+
+
+# === Exam Simulator ===
+
+class ExamType(models.TextChoices):
+    NPSE = 'NPSE', 'NPSE'
+    BECE = 'BECE', 'BECE'
+    WASSCE = 'WASSCE', 'WASSCE'
+
+
+class PaperType(models.TextChoices):
+    OBJECTIVES = 'objectives', 'Objectives (MCQ)'
+    THEORY = 'theory', 'Theory'
+
+
+class ExamConfig(models.Model):
+    exam_type = models.CharField(max_length=10, choices=ExamType.choices)
+    subject = models.CharField(max_length=100)
+    paper_type = models.CharField(max_length=15, choices=PaperType.choices)
+    num_questions = models.PositiveIntegerField()
+    time_minutes = models.PositiveIntegerField()
+    instructions = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('exam_type', 'subject', 'paper_type')
+
+    def __str__(self):
+        return f"{self.exam_type} - {self.subject} ({self.paper_type})"
+
+
+class ExamSession(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exam_sessions')
+    exam_config = models.ForeignKey(ExamConfig, on_delete=models.CASCADE, related_name='sessions')
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    questions_data = models.JSONField()
+    answers_data = models.JSONField(default=list)
+    score = models.PositiveIntegerField(null=True, blank=True)
+    total_marks = models.PositiveIntegerField(null=True, blank=True)
+    percentage = models.FloatField(null=True, blank=True)
+    grade = models.CharField(max_length=5, null=True, blank=True)
+    feedback = models.TextField(null=True, blank=True)
+    topic_breakdown = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.exam_config} ({self.percentage or 0}%)"

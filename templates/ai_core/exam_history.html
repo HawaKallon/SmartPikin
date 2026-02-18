@@ -1,0 +1,49 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px; max-width: 900px;">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold" style="color: #1a1a2e;">Exam History</h2>
+        <p class="text-muted">Your past exam attempts and scores</p>
+    </div>
+
+    {% if sessions %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead style="background: #f8f9fa;">
+                <tr>
+                    <th>Exam</th>
+                    <th>Subject</th>
+                    <th>Score</th>
+                    <th>Grade</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td><span class="badge rounded-pill px-3 py-2" style="background: {% if s.exam_config.exam_type == 'NPSE' %}#f9b234{% elif s.exam_config.exam_type == 'BECE' %}#13547a{% else %}#e74c3c{% endif %}; color: #fff;">{{ s.exam_config.exam_type }}</span></td>
+                    <td class="fw-bold">{{ s.exam_config.subject }}</td>
+                    <td>{{ s.score }}/{{ s.total_marks }} <small class="text-muted">({{ s.percentage }}%)</small></td>
+                    <td>
+                        <span class="fw-bold" style="color: {% if s.percentage >= 70 %}#2e8b57{% elif s.percentage >= 50 %}#f9b234{% else %}#e74c3c{% endif %};">
+                            {{ s.grade }}
+                        </span>
+                    </td>
+                    <td class="text-muted small">{{ s.completed_at|date:"M d, Y" }}</td>
+                    <td><a href="{% url 'ai_core:exam_results' s.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Review</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-journal-x fs-1 text-muted"></i>
+        <p class="text-muted mt-3">No exams taken yet.</p>
+        <a href="{% url 'ai_core:exam_simulator' %}" class="btn btn-primary rounded-pill px-4">Take Your First Exam</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,7 +1,6 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from ai_core.views.class_notes import QuestionBankGeneratorView
 from core.views.application import ApplicationFormWizard, download_application
 from core.views.home import HomePage, TeacherListView, TeacherProfileDetailView, SchoolListView, SchoolDetailView
 from core.views.tutor import TutorListView
@@ -22,5 +21,5 @@ urlpatterns = [
         name='application_form_wizard'
     ),
     path('application/<int:application_id>/download/', download_application, name='download_application'),
-
+    path('about/', TemplateView.as_view(template_name='core/marketing.html'), name='marketing'),
 ]

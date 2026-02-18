@@ -1,0 +1,11 @@
+
+
+
+- mock consultancy field for next area of study (tracks movement on the platform for suggestions).
+- avatar for teaching - also try to integrate audios and videos(use avatar for videos)
+- feedback on students mock exams - on where to improve etc - mock exams based off of subject not only topic. 
+- incorporating different curriculum of a country into the system.
+- get like an interface in the system where in, it will be easy to integrate a new curriculum into the platform and the models are trained off of that. 
+- cognitive skills and profiling - where teachers can be able to see student's profile so they can adjust their teachings accordingly. (not sure how this would work on the platform but plan it first)
+- the quiz mode also be for subjects not for a particular topic alone
+- feedbacks on quizs, tests etc on where to study and improve on.

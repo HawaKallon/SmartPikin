@@ -1,0 +1,372 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px;">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4" style="color: #008000;">AI Study Flashcards</h1>
+        <p class="lead text-muted">Generate smart flashcards to master any topic, designed for Sierra Leone students.</p>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Setup Form -->
+    <div id="fc-setup" {% if cards_data %}style="display:none;"{% endif %}>
+        <div class="card shadow-lg border-light rounded">
+            <div class="card-body">
+                <form method="post" id="fc-form">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="topic" class="form-label fs-5 fw-bold">Topic:</label>
+                        <input type="text" class="form-control" id="topic" name="topic" placeholder="e.g., Cell Biology, Fractions, The Water Cycle" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="level" class="form-label fs-5 fw-bold">Class Level:</label>
+                        <select class="form-select" id="level" name="level" required>
+                            {% for value, label in class_levels %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fs-5 fw-bold">Number of Cards:</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="num_cards" id="c5" value="5" checked>
+                                <label class="form-check-label" for="c5">5</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="num_cards" id="c10" value="10">
+                                <label class="form-check-label" for="c10">10</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="num_cards" id="c15" value="15">
+                                <label class="form-check-label" for="c15">15</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-lg text-white" style="background-color: #008000;" id="fc-generate-btn">
+                            Generate Flashcards
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard Deck (hidden until cards generated) -->
+    <div id="fc-deck" style="display:none;">
+        <!-- Progress -->
+        <div class="text-center mb-3">
+            <span class="fs-5 fw-bold" id="fc-progress">Card 1 of 5</span>
+        </div>
+
+        <!-- Flashcard with 3D flip -->
+        <div class="d-flex align-items-center justify-content-center gap-3">
+            <!-- Previous Arrow -->
+            <button class="btn btn-outline-secondary btn-lg rounded-circle fc-nav-btn" id="fc-prev" title="Previous">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+
+            <!-- Card -->
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-inner" id="flashcard-inner">
+                    <div class="flashcard-front">
+                        <div class="fc-label">Question</div>
+                        <div class="fc-content" id="fc-front-text"></div>
+                        <div class="fc-hint">Click to flip</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="fc-label">Answer</div>
+                        <div class="fc-content" id="fc-back-text"></div>
+                        <div class="fc-hint">Click to flip back</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Arrow -->
+            <button class="btn btn-outline-secondary btn-lg rounded-circle fc-nav-btn" id="fc-next" title="Next">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+
+        <!-- Got It / Need Practice buttons -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <button class="btn btn-lg text-white" style="background-color: #008000;" id="fc-got-it">Got It</button>
+            <button class="btn btn-lg btn-warning" id="fc-need-practice">Need Practice</button>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div id="fc-summary" style="display:none;">
+        <div class="card shadow-lg border-light rounded text-center p-5">
+            <h2 class="mb-3" style="color: #008000;">Study Session Complete!</h2>
+            <div class="row justify-content-center mb-4">
+                <div class="col-auto">
+                    <div class="p-3 rounded" style="background-color: #d4edda;">
+                        <div class="fs-2 fw-bold" style="color: #008000;" id="summary-got-it">0</div>
+                        <div class="text-muted">Got It</div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="p-3 rounded" style="background-color: #fff3cd;">
+                        <div class="fs-2 fw-bold text-warning" id="summary-need-practice">0</div>
+                        <div class="text-muted">Need Practice</div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="p-3 rounded" style="background-color: #e8f5e9;">
+                        <div class="fs-2 fw-bold" style="color: #008000;" id="summary-percentage">0%</div>
+                        <div class="text-muted">Mastered</div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-lg btn-warning" id="review-missed-btn" style="display:none;">Review Missed Cards</button>
+                <button class="btn btn-lg text-white" style="background-color: #008000;" onclick="location.reload()">Generate New Set</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cards_data %}
+{{ cards_data|json_script:"cards-data" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    // Loading spinner on form submit
+    var form = document.getElementById('fc-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            var btn = document.getElementById('fc-generate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating Flashcards...';
+        });
+    }
+
+    var dataEl = document.getElementById('cards-data');
+    if (!dataEl) return;
+
+    var allCards = JSON.parse(dataEl.textContent);
+    if (!Array.isArray(allCards) || allCards.length === 0) return;
+
+    var cards = allCards.slice();
+    var currentIndex = 0;
+    var gotIt = [];
+    var needPractice = [];
+    var isFlipped = false;
+
+    var setupEl = document.getElementById('fc-setup');
+    var deckEl = document.getElementById('fc-deck');
+    var summaryEl = document.getElementById('fc-summary');
+    var flashcard = document.getElementById('flashcard');
+    var flashcardInner = document.getElementById('flashcard-inner');
+
+    setupEl.style.display = 'none';
+    deckEl.style.display = 'block';
+    showCard();
+
+    function showCard() {
+        // Unflip
+        isFlipped = false;
+        flashcardInner.classList.remove('flipped');
+
+        var card = cards[currentIndex];
+        document.getElementById('fc-front-text').textContent = card.front;
+        document.getElementById('fc-back-text').textContent = card.back;
+        document.getElementById('fc-progress').textContent = "Card " + (currentIndex + 1) + " of " + cards.length;
+
+        document.getElementById('fc-prev').disabled = currentIndex === 0;
+    }
+
+    function flipCard() {
+        isFlipped = !isFlipped;
+        flashcardInner.classList.toggle('flipped');
+    }
+
+    // Click to flip
+    flashcard.addEventListener('click', flipCard);
+
+    document.getElementById('fc-prev').addEventListener('click', function() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            showCard();
+        }
+    });
+
+    document.getElementById('fc-next').addEventListener('click', function() {
+        if (currentIndex < cards.length - 1) {
+            currentIndex++;
+            showCard();
+        }
+    });
+
+    document.getElementById('fc-got-it').addEventListener('click', function() {
+        gotIt.push(cards[currentIndex]);
+        advance();
+    });
+
+    document.getElementById('fc-need-practice').addEventListener('click', function() {
+        needPractice.push(cards[currentIndex]);
+        advance();
+    });
+
+    function advance() {
+        currentIndex++;
+        if (currentIndex < cards.length) {
+            showCard();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        deckEl.style.display = 'none';
+        summaryEl.style.display = 'block';
+
+        var total = gotIt.length + needPractice.length;
+        var pct = total > 0 ? Math.round((gotIt.length / total) * 100) : 0;
+
+        document.getElementById('summary-got-it').textContent = gotIt.length;
+        document.getElementById('summary-need-practice').textContent = needPractice.length;
+        document.getElementById('summary-percentage').textContent = pct + "%";
+
+        if (needPractice.length > 0) {
+            var reviewBtn = document.getElementById('review-missed-btn');
+            reviewBtn.style.display = 'inline-block';
+            reviewBtn.addEventListener('click', function() {
+                cards = needPractice.slice();
+                currentIndex = 0;
+                gotIt = [];
+                needPractice = [];
+                summaryEl.style.display = 'none';
+                deckEl.style.display = 'block';
+                showCard();
+            });
+        }
+    }
+
+    // Keyboard support: left/right arrows, space to flip
+    document.addEventListener('keydown', function(e) {
+        if (deckEl.style.display !== 'block') return;
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            currentIndex--;
+            showCard();
+        } else if (e.key === 'ArrowRight' && currentIndex < cards.length - 1) {
+            currentIndex++;
+            showCard();
+        } else if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            flipCard();
+        }
+    });
+})();
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Flashcard 3D flip */
+    .flashcard {
+        perspective: 1000px;
+        width: 100%;
+        max-width: 500px;
+        height: 320px;
+        cursor: pointer;
+    }
+    .flashcard-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+    .flashcard-inner.flipped {
+        transform: rotateY(180deg);
+    }
+    .flashcard-front, .flashcard-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    .flashcard-front {
+        background: linear-gradient(135deg, #ffffff 0%, #f0fff0 100%);
+        border: 2px solid #008000;
+    }
+    .flashcard-back {
+        background: linear-gradient(135deg, #008000 0%, #006400 100%);
+        color: white;
+        transform: rotateY(180deg);
+    }
+    .fc-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.7;
+        margin-bottom: 12px;
+    }
+    .fc-content {
+        font-size: 1.2rem;
+        text-align: center;
+        line-height: 1.6;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+    .fc-hint {
+        font-size: 0.8rem;
+        opacity: 0.5;
+        margin-top: 12px;
+    }
+    .fc-nav-btn {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        flex-shrink: 0;
+    }
+
+    .form-check-input:checked {
+        background-color: #008000;
+        border-color: #008000;
+    }
+
+    @media (max-width: 576px) {
+        .flashcard {
+            height: 280px;
+            max-width: 100%;
+        }
+        .fc-content {
+            font-size: 1rem;
+        }
+        .fc-nav-btn {
+            width: 36px;
+            height: 36px;
+        }
+    }
+</style>
+{% endblock %}

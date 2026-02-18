@@ -18,15 +18,17 @@ class BaseRegisterView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
         messages.success(self.request, f"Registration successful. Welcome, {form.cleaned_data['first_name']}!")
-        return super().form_valid(form)
+        return response
 
 
 class TeacherRegisterView(BaseRegisterView):
     model = CustomUser
     form_class = TeacherRegistrationForm
     template_name = "account/resgistration/teacher/register.html"
-    success_url = reverse_lazy('account:login')
+    success_url = reverse_lazy('core:home_page')
 
     def form_valid(self, form):
         form.instance.role = 'teacher'
@@ -37,7 +39,7 @@ class StudentRegisterView(BaseRegisterView):
     model = CustomUser
     form_class = StudentRegistrationForm
     template_name = "account/resgistration/student/register.html"
-    success_url = reverse_lazy('account:login')
+    success_url = reverse_lazy('core:home_page')
 
     def form_valid(self, form):
         form.instance.role = 'student'
@@ -48,7 +50,7 @@ class GuardianRegisterView(BaseRegisterView):
     model = CustomUser
     form_class = GuardianRegistrationForm
     template_name = "account/resgistration/guardian/register.html"
-    success_url = reverse_lazy('account:login')
+    success_url = reverse_lazy('core:home_page')
 
     def form_valid(self, form):
         form.instance.role = 'guardian'

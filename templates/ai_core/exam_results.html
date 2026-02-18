@@ -1,0 +1,91 @@
+{% extends 'base/index.html' %}
+
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px; max-width: 860px;">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold" style="color: #1a1a2e;">Exam Results</h2>
+        <p class="text-muted">{{ config.exam_type }} — {{ config.subject }}</p>
+    </div>
+
+    <!-- Score Card -->
+    <div class="card border-0 shadow rounded-4 text-center p-4 mb-4">
+        <div class="mb-3">
+            <span class="fs-1 fw-bold" style="color: {% if session.percentage >= 70 %}#2e8b57{% elif session.percentage >= 50 %}#f9b234{% else %}#e74c3c{% endif %};">
+                {{ session.grade }}
+            </span>
+        </div>
+        <div class="d-flex justify-content-center gap-5 mb-3">
+            <div>
+                <span class="fs-2 fw-bold">{{ session.score }} / {{ session.total_marks }}</span>
+                <br><small class="text-muted">Score</small>
+            </div>
+            <div>
+                <span class="fs-2 fw-bold" style="color: #2e8b57;">{{ session.percentage }}%</span>
+                <br><small class="text-muted">Percentage</small>
+            </div>
+        </div>
+        <p class="text-muted small">Completed {{ session.completed_at|timesince }} ago</p>
+    </div>
+
+    {% if session.topic_breakdown %}
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3" style="color: #1a1a2e;">Performance Breakdown</h5>
+            {% for topic, data in session.topic_breakdown.items %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between">
+                    <span style="font-size: 0.85rem; font-weight: 600;">{{ topic }}</span>
+                    <span style="font-size: 0.8rem; color: #888;">{{ data.correct }}/{{ data.total }}</span>
+                </div>
+                <div style="background: #eee; border-radius: 6px; height: 24px; overflow: hidden;">
+                    {% widthratio data.correct data.total 100 as pct %}
+                    <div style="width: {{ pct }}%; height: 100%; border-radius: 6px; background: {% if pct >= 70 %}#2e8b57{% elif pct >= 50 %}#f9b234{% else %}#e74c3c{% endif %}; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 700; color: #fff; min-width: 30px;">
+                        {{ pct }}%
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if session.feedback %}
+    <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: #f0fff0;">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3" style="color: #2e8b57;"><i class="bi bi-lightbulb me-2"></i>Study Recommendations</h5>
+            <p style="line-height: 1.8; color: #444;">{{ session.feedback }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Question Review -->
+    <h5 class="fw-bold mb-3" style="color: #1a1a2e;">Question Review</h5>
+    {% for r in review %}
+    <div class="card shadow-sm mb-2" style="border: none; border-radius: 12px; border-left: 4px solid {% if r.selected == r.correct %}#2e8b57{% elif r.selected == -1 %}#aaa{% else %}#e74c3c{% endif %};">
+        <div class="card-body" style="padding: 16px 20px;">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="fw-bold" style="color: #1a1a2e;">Q{{ forloop.counter }}. {{ r.question }}</span>
+                {% if r.selected == -1 %}
+                <span class="badge bg-secondary">Skipped</span>
+                {% elif r.selected == r.correct %}
+                <span class="badge bg-success">Correct</span>
+                {% else %}
+                <span class="badge bg-danger">Wrong</span>
+                {% endif %}
+            </div>
+            {% if r.selected != r.correct %}
+            <p class="mb-1 small"><strong>Correct:</strong> {{ r.options|slice:":4"|dictsort:"" }}</p>
+            {% endif %}
+            {% if r.explanation %}
+            <p class="mb-0 small text-muted"><em>{{ r.explanation }}</em></p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-center my-4">
+        <a href="{% url 'ai_core:exam_simulator' %}" class="btn btn-lg px-5 py-2 text-white fw-bold rounded-pill" style="background: linear-gradient(135deg, #13547a, #2e8b57); border: none;">Take Another Exam</a>
+        <a href="{% url 'ai_core:exam_history' %}" class="btn btn-lg btn-outline-secondary px-4 py-2 rounded-pill ms-2">View History</a>
+    </div>
+</div>
+{% endblock %}

@@ -29,9 +29,15 @@
         mermaid.initialize({ startOnLoad: true });
     </script>
         <style>
+        html { height: 100%; }
         body {
             font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+        main { flex: 1 0 auto; }
+        .site-footer { flex-shrink: 0; }
 
         /* ===== NAVBAR ===== */
         .sp-navbar {
@@ -48,7 +54,7 @@
         }
 
         .sp-navbar .nav-link {
-            color: #2d3436;
+            color: #2d3436 !important;
             font-family: 'Montserrat', sans-serif;
             font-size: 14px;
             font-weight: 600;
@@ -61,8 +67,17 @@
 
         .sp-navbar .nav-link:hover,
         .sp-navbar .nav-link.active {
-            color: #13547a;
+            color: #13547a !important;
             background: rgba(19, 84, 122, 0.06);
+        }
+
+        .sp-navbar .dropdown-item {
+            color: #4a4a4a !important;
+        }
+
+        .sp-navbar .dropdown-item:hover,
+        .sp-navbar .dropdown-item:focus {
+            color: #13547a !important;
         }
 
         /* Regular dropdowns (user menu, register) */
@@ -376,23 +391,21 @@
                                     <li><a href="{% url 'ai_core:lesson_plan_generator' %}">Lesson Plan Generator</a></li>
                                     <li><a href="{% url 'ai_core:creative_writing' %}">Creative Writing Assistant</a></li>
                                     <li><a href="{% url 'ai_core:teacher_summarization_form' %}">AI Summarizer</a></li>
-                                    <li><a href="{% url 'ai_core:math_lesson_note_generator' %}">AI Math Lesson Generator</a></li>
-                                    <li><a href="{% url 'ai_core:question_generator' %}">AI Questions Generator</a></li>
                                 </ul>
                             </div>
                             <div class="col-md-4 sp-mega-col">
-                                <h6 class="sp-mega-heading">AI Study Padi</h6>
+                                <h6 class="sp-mega-heading">Interactive Learning</h6>
                                 <ul class="list-unstyled sp-mega-list">
-                                    <li><a href="{% url 'ai_core:query' %}">History</a></li>
-                                    <li><a href="#">Economics</a></li>
-                                    <li><a href="#">Physics</a></li>
+                                    <li><a href="{% url 'ai_core:exam_simulator' %}">Exam Simulator</a></li>
+                                    <li><a href="{% url 'ai_core:quiz_mode' %}">AI Quiz Mode</a></li>
+                                    <li><a href="{% url 'ai_core:flashcard_generator' %}">AI Flashcards</a></li>
                                 </ul>
                             </div>
                             <div class="col-md-4 sp-mega-col">
-                                <h6 class="sp-mega-heading">About AI Tools</h6>
-                                <p class="sp-mega-desc">
-                                    Learn how our AI solutions assist educators in content creation, productivity, and more.
-                                </p>
+                                <h6 class="sp-mega-heading">Study Tools</h6>
+                                <ul class="list-unstyled sp-mega-list">
+                                    <li><a href="{% url 'ai_core:study_from_notes' %}">Study from My Notes</a></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -470,65 +483,223 @@
 
 
 {% block page_content %}
-	
 
-
-<section class="hero-section d-flex justify-content-center align-items-center text-center" id="section_1" 
-    style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('https://source.unsplash.com/1920x1080/?education,learning'); background-size: cover; background-position: center; height: 70vh; padding: 60px 0;">
+<!-- HERO -->
+<section class="hero-section d-flex justify-content-center align-items-center text-center" id="section_1"
+    style="background-color: #0a2e1a; background-image: linear-gradient(to bottom, rgba(0, 100, 0, 0.7), rgba(0, 50, 0, 0.9)), url('{% static 'core/images/django6.png' %}'); background-size: cover; background-position: center; min-height: 80vh; padding: 100px 0 80px;">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-12 mx-auto">
-                <h1 class="text-white fw-bold mb-3">Discover. Empower. Transform.</h1>
+                <span class="badge rounded-pill px-3 py-2 mb-4" style="background: rgba(255,255,255,0.15); color: #a8e6cf; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">AI-Powered Education for Sierra Leone</span>
+                <h1 class="text-white fw-bold mb-3" style="font-size: 3rem; line-height: 1.2;">Discover. Empower. Transform.</h1>
                 <h5 class="text-white mb-4">A platform for educators and creatives around the world</h5>
-                <p class="text-light">
+                <p style="color: rgba(255,255,255,0.85); font-size: 1.15rem; max-width: 560px; margin: 0 auto 2rem;">
                     Welcome to SmartPikin, where knowledge meets inspiration. Together, we shape the future.
                 </p>
-                <div class="mt-4">
-                    <a href="/find-schools" class="btn btn-primary btn-lg me-3 px-4 py-2">Find Schools</a>
-                    <a href="/get-started" class="btn btn-outline-light btn-lg px-4 py-2">Get Started</a>
+                <div class="mt-4 d-flex flex-wrap justify-content-center gap-3">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'ai_core:exam_simulator' %}" class="btn btn-lg px-4 py-2 text-white fw-bold" style="background: #f9b234; border: none; border-radius: 50px;">Practice Exams</a>
+                    <a href="{% url 'ai_core:quiz_mode' %}" class="btn btn-lg btn-outline-light px-4 py-2" style="border-radius: 50px;">Quick Quiz</a>
+                    {% else %}
+                    <a href="{% url 'account:student_register' %}" class="btn btn-lg px-4 py-2 text-white fw-bold" style="background: #f9b234; border: none; border-radius: 50px;">Get Started Free</a>
+                    <a href="{% url 'account:login' %}" class="btn btn-lg btn-outline-light px-4 py-2" style="border-radius: 50px;">Sign In</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="featured-section py-4">
+<!-- FEATURES: What You Can Do -->
+<section class="py-5" id="section_2" style="background: #fff;">
     <div class="container">
-        <div class="row justify-content-center g-3">
-            <!-- Featured AI in Education Block -->
-            <div class="col-lg-4 col-md-6 col-12">
-                <div class="custom-block bg-white shadow-sm rounded-3 overflow-hidden">
-                    <a href="topics-detail.html" class="text-decoration-none">
-                        <div class="p-3">
-                            <h6 class="mb-2 text-dark">AI in Education</h6>
-                            <p class="mb-2 text-muted small">Revolutionizing learning experiences across Africa. Discover how AI is reshaping classrooms in Sierra Leone and beyond.</p>
-                            <span class="badge bg-primary text-white rounded-pill">New</span>
-                        </div>
-                        <img src="{% static 'core/images/edu3.png' %}" class="img-fluid w-100" alt="AI in Education">
-                    </a>
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" style="color: #1a1a2e;">Everything You Need to Succeed</h2>
+            <p class="text-muted" style="max-width: 550px; margin: 0 auto;">Powerful AI tools designed around the Sierra Leone curriculum, from primary to senior secondary.</p>
+        </div>
+        <div class="row g-4">
+            <!-- Exam Simulator -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #edf7ed; border: 1px solid #b8e6b8;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: linear-gradient(135deg, #13547a, #2e8b57);">
+                        <i class="bi bi-mortarboard-fill text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">Exam Simulator</h5>
+                    <p class="text-muted small mb-3">Practice NPSE, BECE, and WASSCE exams with real formats, timed questions, WAEC grading, and AI feedback on where to improve.</p>
+                    <a href="{% url 'ai_core:exam_simulator' %}" class="fw-bold text-decoration-none" style="color: #13547a;">Try it &rarr;</a>
                 </div>
             </div>
+            <!-- Quiz Mode -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #f0fff0; border: 1px solid #c8f7c8;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #008000;">
+                        <i class="bi bi-lightning-charge-fill text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">AI Quiz Mode</h5>
+                    <p class="text-muted small mb-3">Test yourself with timed multiple-choice quizzes generated by AI on any topic. Get instant feedback and track your scores.</p>
+                    <a href="{% url 'ai_core:quiz_mode' %}" class="fw-bold text-decoration-none" style="color: #008000;">Try it &rarr;</a>
+                </div>
+            </div>
+            <!-- Flashcards -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #fff8e6; border: 1px solid #ffe8a3;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #f9b234;">
+                        <i class="bi bi-card-heading text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">AI Flashcards</h5>
+                    <p class="text-muted small mb-3">Generate study flashcards with a flip to reveal answers. Mark what you know and review what you don't.</p>
+                    <a href="{% url 'ai_core:flashcard_generator' %}" class="fw-bold text-decoration-none" style="color: #c48a1a;">Try it &rarr;</a>
+                </div>
+            </div>
+            <!-- Lesson Plans -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #eef4ff; border: 1px solid #c5d9f7;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #13547a;">
+                        <i class="bi bi-journal-richtext text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">Lesson Plans & Notes</h5>
+                    <p class="text-muted small mb-3">Teachers create complete lesson plans. Students get personalized study notes, all tailored for Sierra Leone's curriculum.</p>
+                    <a href="{% url 'ai_core:lesson_plan_generator' %}" class="fw-bold text-decoration-none" style="color: #13547a;">Try it &rarr;</a>
+                </div>
+            </div>
+            <!-- Study from My Notes -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #fef0f0; border: 1px solid #f7c5c5;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #e74c3c;">
+                        <i class="bi bi-upload text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">Study from My Notes</h5>
+                    <p class="text-muted small mb-3">Upload your notes or paste text and let AI generate questions, summaries, and study material from your own content.</p>
+                    <a href="{% url 'ai_core:study_from_notes' %}" class="fw-bold text-decoration-none" style="color: #e74c3c;">Try it &rarr;</a>
+                </div>
+            </div>
+            <!-- Creative Writing -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #f5f0ff; border: 1px solid #d5c5f7;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #9b59b6;">
+                        <i class="bi bi-pen-fill text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">Creative Writing</h5>
+                    <p class="text-muted small mb-3">Get AI-powered writing prompts and assistance to build your creative writing and essay skills.</p>
+                    <a href="{% url 'ai_core:creative_writing' %}" class="fw-bold text-decoration-none" style="color: #9b59b6;">Try it &rarr;</a>
+                </div>
+            </div>
+            <!-- Summarizer -->
+            <div class="col-lg-4 col-md-6">
+                <div class="h-100 p-4 rounded-4 text-center" style="background: #e8faf5; border: 1px solid #b3e8d8;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #1abc9c;">
+                        <i class="bi bi-file-earmark-text-fill text-white fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color: #1a1a2e;">AI Summarizer</h5>
+                    <p class="text-muted small mb-3">Paste any text and get a clear, concise summary. Perfect for long textbook chapters or articles.</p>
+                    <a href="{% url 'ai_core:teacher_summarization_form' %}" class="fw-bold text-decoration-none" style="color: #1abc9c;">Try it &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-            <!-- Featured Sierra Leone Education Transformation Block -->
-            <div class="col-lg-6 col-md-6 col-12">
-                <div class="custom-block custom-block-overlay position-relative overflow-hidden rounded-3">
-                    <img src="{% static 'core/images/django6.png' %}" class="img-fluid w-100" alt="Education in Sierra Leone">
-                    <div class="custom-block-overlay-content position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-3" style="background: rgba(0, 0, 0, 0.6);">
-                        <div>
-                            <h6 class="text-white fw-bold">Empowering Sierra Leone's Future</h6>
-                            <p class="text-light small">SmartPikin is here to elevate the next generation. Through technology and AI, we aim to overcome barriers and enable accessible education for all.</p>
-                            <a href="topics-detail.html" class="btn btn-warning btn-sm mt-2">Learn More</a>
+<!-- HOW IT WORKS -->
+<section class="py-5" id="section_3" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-white fw-bold">How SmartPikin Works</h2>
+            <p style="color: rgba(255,255,255,0.7);">Three simple steps to start learning smarter</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);">
+                    <span class="text-white fw-bold fs-3">1</span>
+                </div>
+                <h5 class="text-white fw-bold">Sign Up Free</h5>
+                <p style="color: rgba(255,255,255,0.7);">Create your student or teacher account in seconds. No payment required.</p>
+            </div>
+            <div class="col-lg-4 col-md-6 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);">
+                    <span class="text-white fw-bold fs-3">2</span>
+                </div>
+                <h5 class="text-white fw-bold">Pick a Tool</h5>
+                <p style="color: rgba(255,255,255,0.7);">Choose from quizzes, flashcards, lesson plans, writing prompts, summarizer, and more.</p>
+            </div>
+            <div class="col-lg-4 col-md-6 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);">
+                    <span class="text-white fw-bold fs-3">3</span>
+                </div>
+                <h5 class="text-white fw-bold">Learn & Improve</h5>
+                <p style="color: rgba(255,255,255,0.7);">AI generates personalised content for your level instantly. Study, practise, and track your progress.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ (Student-focused) -->
+<section class="py-5" id="section_4" style="background: #f8f9fa;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" style="color: #1a1a2e;">Got Questions? We've Got Answers</h2>
+            <p class="text-muted">Here's what students and teachers ask us most.</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true">
+                                Is SmartPikin free for students?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Yes! Students can sign up and use all AI tools completely free &mdash; quizzes, flashcards, study notes, summaries, and more. No credit card needed.
+                            </div>
                         </div>
-                        <div class="social-share d-flex align-items-center mt-2">
-                            <p class="text-light mb-0 me-3 small">Share:</p>
-                            <ul class="list-unstyled d-flex mb-0">
-                                <li class="me-2">
-                                    <a href="#" class="text-light text-decoration-none fs-6"><i class="bi bi-twitter"></i></a>
-                                </li>
-                                <li>
-                                    <a href="#" class="text-light text-decoration-none fs-6"><i class="bi bi-facebook"></i></a>
-                                </li>
-                            </ul>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Does it follow the Sierra Leone curriculum?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Absolutely. Every tool is designed with Sierra Leone's education system in mind &mdash; from Nursery through Senior Secondary. You select your class level and the AI adapts.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                How do the AI quizzes work?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Enter any topic, pick your subject and class level, and the AI generates timed multiple-choice questions. You get instant feedback after each answer plus a full review at the end.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Can teachers use SmartPikin too?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Yes! Teachers can generate full lesson plans, creative writing prompts, and summaries. Students can upload their own notes and get AI-generated study material. All content can be downloaded as PDFs.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Do I need internet to use it?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                You need an internet connection to generate new content since the AI runs in the cloud. However, you can download lesson plans and notes as PDFs to study offline.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -537,332 +708,54 @@
     </div>
 </section>
 
-
-
-  
-
-<section class="explore-section section-padding" id="section_2">
+<!-- GET IN TOUCH -->
+<section class="py-5" id="section_5" style="background: #fff;">
     <div class="container">
-        <div class="col-12 text-center">
-            <h2 class="mb-4">Browse Schools</h2>
-        </div>
-    </div>
-
-    <!-- Tabs Navigation -->
-    <div class="container-fluid">
-        <div class="row">
-            <ul class="nav nav-tabs" id="schoolTabs" role="tablist">
-                <!-- Primary Schools Tab -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="primary-tab" data-bs-toggle="tab" data-bs-target="#primary-pane" type="button" role="tab" aria-controls="primary-pane" aria-selected="true">Primary Schools</button>
-                </li>
-                <!-- Secondary Schools Tab -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="secondary-tab" data-bs-toggle="tab" data-bs-target="#secondary-pane" type="button" role="tab" aria-controls="secondary-pane" aria-selected="false">Secondary Schools</button>
-                </li>
-                <!-- Vocational Schools Tab -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="vocational-tab" data-bs-toggle="tab" data-bs-target="#vocational-pane" type="button" role="tab" aria-controls="vocational-pane" aria-selected="false">Vocational Schools</button>
-                </li>
-                <!-- Private Schools Tab -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="private-tab" data-bs-toggle="tab" data-bs-target="#private-pane" type="button" role="tab" aria-controls="private-pane" aria-selected="false">Private Schools</button>
-                </li>
-                <!-- Government Schools Tab -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="government-tab" data-bs-toggle="tab" data-bs-target="#government-pane" type="button" role="tab" aria-controls="government-pane" aria-selected="false">Government Schools</button>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="tab-content" id="schoolTabsContent">
-
-                    <!-- Primary Schools Pane -->
-                    <div class="tab-pane fade show active" id="primary-pane" role="tabpanel" aria-labelledby="primary-tab">
-                        <div class="row">
-                            {% for school in primary_schools %}
-                            <div class="col-lg-4 col-md-6 col-12 mb-4">
-                                <div class="custom-block bg-white shadow-lg">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">{{ school.name }}</h5>
-                                            <p class="mb-0">Enrollment: {{ school.total_enrollment }}</p>
-                                        </div>
-                                    </div>
-                                    {% if school.logo %}
-                                        <img src="{{ school.logo.url }}" class="custom-block-image img-fluid" alt="{{ school.name }}">
-                                    {% else %}
-                                        <img src="{% static 'core/images/topics/default_school.png' %}" class="custom-block-image img-fluid" alt="School Logo">
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                                <p>No Primary Schools available.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Secondary Schools Pane -->
-                    <div class="tab-pane fade" id="secondary-pane" role="tabpanel" aria-labelledby="secondary-tab">
-                        <div class="row">
-                            {% for school in secondary_schools %}
-                            <div class="col-lg-4 col-md-6 col-12 mb-4">
-                                <div class="custom-block bg-white shadow-lg">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">{{ school.name }}</h5>
-                                            <p class="mb-0">Enrollment: {{ school.total_enrollment }}</p>
-                                        </div>
-                                    </div>
-                                    {% if school.logo %}
-                                        <img src="{{ school.logo.url }}" class="custom-block-image img-fluid" alt="{{ school.name }}">
-                                    {% else %}
-                                        <img src="{% static 'core/images/topics/default_school.png' %}" class="custom-block-image img-fluid" alt="School Logo">
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                                <p>No Secondary Schools available.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Vocational Schools Pane -->
-                    <div class="tab-pane fade" id="vocational-pane" role="tabpanel" aria-labelledby="vocational-tab">
-                        <div class="row">
-                            {% for school in vocational_schools %}
-                            <div class="col-lg-4 col-md-6 col-12 mb-4">
-                                <div class="custom-block bg-white shadow-lg">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">{{ school.name }}</h5>
-                                            <p class="mb-0">Enrollment: {{ school.total_enrollment }}</p>
-                                        </div>
-                                    </div>
-                                    {% if school.logo %}
-                                        <img src="{{ school.logo.url }}" class="custom-block-image img-fluid" alt="{{ school.name }}">
-                                    {% else %}
-                                        <img src="{% static 'core/images/topics/default_school.png' %}" class="custom-block-image img-fluid" alt="School Logo">
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                                <p>No Vocational Schools available.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Private Schools Pane -->
-                    <div class="tab-pane fade" id="private-pane" role="tabpanel" aria-labelledby="private-tab">
-                        <div class="row">
-                            {% for school in private_schools %}
-                            <div class="col-lg-4 col-md-6 col-12 mb-4">
-                                <div class="custom-block bg-white shadow-lg">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">{{ school.name }}</h5>
-                                            <p class="mb-0">Enrollment: {{ school.total_enrollment }}</p>
-                                        </div>
-                                    </div>
-                                    {% if school.logo %}
-                                        <img src="{{ school.logo.url }}" class="custom-block-image img-fluid" alt="{{ school.name }}">
-                                    {% else %}
-                                        <img src="{% static 'core/images/topics/default_school.png' %}" class="custom-block-image img-fluid" alt="School Logo">
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                                <p>No Private Schools available.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Government Schools Pane -->
-                    <div class="tab-pane fade" id="government-pane" role="tabpanel" aria-labelledby="government-tab">
-                        <div class="row">
-                            {% for school in government_schools %}
-                            <div class="col-lg-4 col-md-6 col-12 mb-4">
-                                <div class="custom-block bg-white shadow-lg">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">{{ school.name }}</h5>
-                                            <p class="mb-0">Enrollment: {{ school.total_enrollment }}</p>
-                                        </div>
-                                    </div>
-                                    {% if school.logo %}
-                                        <img src="{{ school.logo.url }}" class="custom-block-image img-fluid" alt="{{ school.name }}">
-                                    {% else %}
-                                        <img src="{% static 'core/images/topics/default_school.png' %}" class="custom-block-image img-fluid" alt="School Logo">
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                                <p>No Government Schools available.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-
-<section class="timeline-section section-padding" id="section_3" 
-         style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)), url('https://source.unsplash.com/1920x1080/?education,africa'); background-size: cover; background-position: center;">
-    <div class="section-overlay"></div>
-    <div class="container">
-        <div class="row">
-            <!-- Section Heading -->
-            <div class="col-12 text-center">
-                <h2 class="text-white mb-4 fw-bold">How SmartPikin Works</h2>
-                <p class="text-light">Transforming Education in Sierra Leone through AI and Innovation</p>
-            </div>
-
-            <!-- Timeline Content -->
-            <div class="col-lg-10 col-12 mx-auto">
-                <div class="timeline-container">
-                    <ul class="vertical-scrollable-timeline" id="vertical-scrollable-timeline">
-                        <!-- Step 1 -->
-                        <li>
-                            <h4 class="text-white mb-3">Centralized Educational Portal</h4>
-                            <p class="text-light">Search, filter, and view profiles of schools, tutors, and educational resources in one place. Empower students and guardians with easy navigation and real-time updates.</p>
-                            <div class="icon-holder">
-                                <i class="bi-building"></i>
-                            </div>
-                        </li>
-                        
-                        <!-- Step 2 -->
-                        <li>
-                            <h4 class="text-white mb-3">AI-Powered Tools for Educators</h4>
-                            <p class="text-light">Create innovative lesson plans, generate math exercises, summarize documents, and get creative writing assistance tailored for Sierra Leone's needs.</p>
-                            <div class="icon-holder">
-                                <i class="bi-robot"></i>
-                            </div>
-                        </li>
-                        
-                        <!-- Step 3 -->
-                        <li>
-                            <h4 class="text-white mb-3">Empowering Students & Guardians</h4>
-                            <p class="text-light">Easily discover schools, track applications, and find tutors, all through an intuitive, AI-driven platform designed for Sierra Leone's unique challenges.</p>
-                            <div class="icon-holder">
-                                <i class="bi-people"></i>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Call to Action -->
-            <div class="col-12 text-center mt-5">
-                <p class="text-white">
-                    Want to see SmartPikin in action?
-                    <a href="#" class="btn custom-btn custom-border-btn ms-3">Check out Demo</a>
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-            <section class="faq-section section-padding" id="section_4" style="background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row">
+        <div class="row align-items-center g-5">
             <div class="col-lg-6 col-12">
-                <h2 class="mb-4 text-dark">Frequently Asked Questions</h2>
-                <p class="text-muted">Get answers to common questions about the SmartPikin project and how it’s transforming education in Sierra Leone.</p>
+                <h2 class="fw-bold mb-3" style="color: #1a1a2e;">Let's Build the Future of Education Together</h2>
+                <p class="text-muted mb-4">Whether you're a student, teacher, school administrator, or partner &mdash; we'd love to hear from you. SmartPikin is built in Freetown, for Sierra Leone.</p>
+                <div class="d-flex align-items-start mb-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 44px; height: 44px; background: #f0fff0;">
+                        <i class="bi bi-geo-alt-fill" style="color: #008000;"></i>
+                    </div>
+                    <div class="ms-3">
+                        <strong style="color: #1a1a2e;">Location</strong>
+                        <p class="text-muted mb-0">InnovationHub, 51 Regent Road, Freetown, Sierra Leone</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 44px; height: 44px; background: #f0fff0;">
+                        <i class="bi bi-envelope-fill" style="color: #008000;"></i>
+                    </div>
+                    <div class="ms-3">
+                        <strong style="color: #1a1a2e;">Email</strong>
+                        <p class="text-muted mb-0"><a href="mailto:info@smartpikin.com" class="text-decoration-none" style="color: #008000;">info@smartpikin.com</a></p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 44px; height: 44px; background: #f0fff0;">
+                        <i class="bi bi-telephone-fill" style="color: #008000;"></i>
+                    </div>
+                    <div class="ms-3">
+                        <strong style="color: #1a1a2e;">Phone</strong>
+                        <p class="text-muted mb-0"><a href="tel:+232-765-4321" class="text-decoration-none" style="color: #008000;">+232-765-4321</a></p>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-lg-5 col-12 ms-auto">
-                <img src="{% static 'core/images/faq_graphic.jpg' %}" class="img-fluid rounded shadow" alt="FAQs">
-            </div>
-
-            <div class="col-lg-6 col-12 m-auto mt-4">
-                <div class="accordion" id="accordionExample">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                What is the SmartPikin project?
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                SmartPikin is an AI-powered educational platform designed to address Sierra Leone’s educational challenges. It connects students, guardians, schools, teachers, and tutors while offering tools like lesson plan generators, creative writing assistance, and application tracking.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                How does SmartPikin empower educators?
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                Educators can use SmartPikin to create modern, tailored lesson plans for rural and urban settings. It also provides tools for generating math exercises, summarizing documents, and fostering creativity in classrooms.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingThree">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Who can benefit from SmartPikin?
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                Students and guardians can discover schools and tutors, track applications, and access educational resources. Teachers can enhance their lesson plans, and schools can better engage with the educational community.
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-lg-6 col-12">
+                <div class="rounded-4 overflow-hidden shadow">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3323.526920836367!2d-13.251259999999999!3d8.485224899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1013ee730eb5bcf3%3A0xdbbd934289a1e180!2sLimkokwing%20University!5e0!3m2!1sen!2ssl!4v1684340239744!5m2!1sen!2ssl"
+                        width="100%" height="340" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<section class="contact-section section-padding section-bg" id="section_5" style="background-color: #f0f0f0;">
-    <div class="container">
-        <div class="row">
-            <!-- Section Heading -->
-            <div class="col-lg-12 col-12 text-center">
-                <h2 class="mb-5 text-dark">Get in Touch</h2>
-                <p class="text-muted">Reach out to Django Girls at Limkokwing University for workshop details and opportunities to get involved.</p>
-            </div>
 
-            <!-- Map -->
-            <div class="col-lg-5 col-12 mb-4 mb-lg-0">
-                <iframe class="google-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3323.526920836367!2d-13.251259999999999!3d8.485224899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1013ee730eb5bcf3%3A0xdbbd934289a1e180!2sLimkokwing%20University!5e0!3m2!1sen!2ssl!4v1684340239744!5m2!1sen!2ssl" 
-                        width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-
-            <!-- Contact Details -->
-            <div class="col-lg-6 col-12 mx-auto">
-                <h4 class="mb-3 text-dark">Django Girls Limkokwing University</h4>
-                <p>InnovationHub, 51 Regent Road, Freetown, Sierra Leone</p>
-                <hr>
-                <p class="d-flex align-items-center mb-1">
-                    <span class="me-2">Phone:</span>
-                    <a href="tel:+232-765-4321" class="site-footer-link">+232-765-4321</a>
-                </p>
-                <p class="d-flex align-items-center">
-                    <span class="me-2">Email:</span>
-                    <a href="mailto:info@djangogirls.sl" class="site-footer-link">info@djangogirls.sl</a>
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+        {% endblock %}
 
         </main>
-        
-        {% endblock %}
 
 <footer class="site-footer section-padding">
     <div class="container">

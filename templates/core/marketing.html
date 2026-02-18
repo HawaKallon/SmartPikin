@@ -1,0 +1,661 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartPikin &mdash; AI-Powered Education for Sierra Leone</title>
+    <meta name="description" content="SmartPikin is the AI-powered learning platform built for Sierra Leone. Quizzes, flashcards, lesson plans, and more — all free for students.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="{% static 'core/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/bootstrap-icons.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #13547a;
+            --secondary: #80d0c7;
+            --aqua: #7fffd4;
+            --gold: #f9b234;
+            --dark: #0b1d2e;
+            --light-bg: #f0f8ff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; color: #333; overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .heading { font-family: 'Space Grotesk', sans-serif; }
+
+        /* === NAV (Floating Pill) === */
+        .mk-nav {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; padding: 6px 8px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(11,29,46,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(128,208,199,0.15); border-radius: 999px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            display: flex; align-items: center; gap: 4px;
+            max-width: calc(100% - 32px);
+        }
+        .mk-nav.scrolled {
+            background: rgba(11,29,46,0.85);
+            border-color: rgba(128,208,199,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            top: 12px;
+        }
+        .mk-nav .nav-logo { height: 28px; flex-shrink: 0; }
+        .mk-nav .nav-logo-link {
+            display: flex; align-items: center; padding: 4px 12px 4px 8px; text-decoration: none;
+        }
+        .mk-nav .nav-links {
+            display: flex; align-items: center; gap: 2px;
+        }
+        .mk-nav a.nav-link {
+            color: rgba(255,255,255,0.8); font-weight: 600; font-size: 13px;
+            transition: color 0.2s, background 0.2s; padding: 8px 16px;
+            border-radius: 999px; white-space: nowrap;
+        }
+        .mk-nav a.nav-link:hover { color: var(--secondary); background: rgba(128,208,199,0.08); }
+        .mk-nav .nav-divider {
+            width: 1px; height: 20px; background: rgba(255,255,255,0.12);
+            margin: 0 4px; flex-shrink: 0;
+        }
+        .mk-nav .btn-glow {
+            background: var(--gold); color: var(--dark); font-weight: 700; font-size: 13px;
+            padding: 8px 22px; border-radius: 999px; border: none; transition: all 0.3s;
+            box-shadow: 0 2px 12px rgba(249,178,52,0.25); white-space: nowrap;
+        }
+        .mk-nav .btn-glow:hover {
+            background: #fac14e; transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(249,178,52,0.4);
+        }
+        /* Mobile hamburger */
+        .mk-nav .nav-toggle {
+            display: none; background: none; border: none; color: rgba(255,255,255,0.8);
+            font-size: 1.25rem; padding: 6px 10px; cursor: pointer; border-radius: 999px;
+            transition: background 0.2s;
+        }
+        .mk-nav .nav-toggle:hover { background: rgba(255,255,255,0.08); }
+        /* Mobile dropdown */
+        .mk-nav-mobile {
+            display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            z-index: 999; background: rgba(11,29,46,0.92); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(128,208,199,0.15);
+            border-radius: 20px; padding: 12px 8px; min-width: 220px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            flex-direction: column; gap: 2px;
+        }
+        .mk-nav-mobile.open { display: flex; }
+        .mk-nav-mobile a {
+            color: rgba(255,255,255,0.8); font-weight: 600; font-size: 14px;
+            padding: 12px 20px; border-radius: 12px; text-decoration: none; transition: all 0.2s;
+        }
+        .mk-nav-mobile a:hover { color: var(--secondary); background: rgba(128,208,199,0.08); }
+        .mk-nav-mobile .btn-glow-mobile {
+            background: var(--gold); color: var(--dark); font-weight: 700; text-align: center;
+            margin: 4px 8px 4px; border-radius: 999px; padding: 12px 20px;
+        }
+        .mk-nav-mobile .btn-glow-mobile:hover { color: var(--dark); background: #fac14e; }
+
+        @media (max-width: 767px) {
+            .mk-nav .nav-links { display: none; }
+            .mk-nav .nav-divider { display: none; }
+            .mk-nav .btn-glow { display: none; }
+            .mk-nav .nav-toggle { display: block; }
+        }
+
+        /* === HERO === */
+        .mk-hero {
+            min-height: 100vh; position: relative; overflow: hidden;
+            background: linear-gradient(160deg, #0b1d2e 0%, #13547a 50%, #1a7a9a 100%);
+            display: flex; align-items: center; padding: 140px 0 100px;
+        }
+        .mk-hero::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(128,208,199,0.15) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none;
+        }
+        .mk-hero::after {
+            content: ''; position: absolute; bottom: -30%; left: -10%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(249,178,52,0.1) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none;
+        }
+        .hero-tag {
+            display: inline-block; background: rgba(128,208,199,0.15); border: 1px solid rgba(128,208,199,0.3);
+            color: var(--secondary); padding: 6px 18px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4.2rem); font-weight: 700; color: #fff;
+            line-height: 1.1; letter-spacing: -1px;
+        }
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--secondary), var(--aqua));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub { color: rgba(255,255,255,0.75); font-size: 1.15rem; max-width: 500px; line-height: 1.7; }
+        .btn-hero-primary {
+            background: var(--gold); color: var(--dark); font-weight: 700; font-size: 1.05rem;
+            padding: 14px 36px; border-radius: 50px; border: none; transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(249,178,52,0.3);
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-3px) scale(1.02); color: var(--dark);
+            box-shadow: 0 8px 30px rgba(249,178,52,0.45);
+        }
+        .btn-hero-secondary {
+            background: transparent; color: #fff; font-weight: 600; font-size: 1.05rem;
+            padding: 14px 36px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.25);
+            transition: all 0.3s;
+        }
+        .btn-hero-secondary:hover {
+            background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); color: #fff;
+        }
+
+        /* Floating cards in hero */
+        .hero-visual { position: relative; }
+        .float-card {
+            background: rgba(255,255,255,0.07); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px;
+            color: #fff; position: absolute; animation: float 6s ease-in-out infinite;
+        }
+        .float-card .fc-icon {
+            width: 40px; height: 40px; border-radius: 10px; display: inline-flex;
+            align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 8px;
+        }
+        .float-card h6 { font-size: 0.85rem; margin-bottom: 4px; font-weight: 600; }
+        .float-card p { font-size: 0.75rem; color: rgba(255,255,255,0.6); margin: 0; }
+        .fc-1 { top: 10%; right: 5%; animation-delay: 0s; }
+        .fc-2 { top: 45%; right: 15%; animation-delay: 2s; }
+        .fc-3 { bottom: 10%; right: 0%; animation-delay: 4s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        /* === STATS TICKER === */
+        .stats-bar {
+            background: var(--dark); border-top: 1px solid rgba(128,208,199,0.15);
+            padding: 28px 0;
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; color: var(--secondary); }
+        .stat-label { color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 500; }
+
+        /* === SECTIONS === */
+        .section-pad { padding: 90px 0; }
+        .section-tag {
+            display: inline-block; background: rgba(19,84,122,0.08); color: var(--primary);
+            padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .section-title { font-size: 2.4rem; font-weight: 700; color: var(--dark); line-height: 1.15; }
+        .section-sub { color: #777; font-size: 1.05rem; max-width: 550px; }
+
+        /* === FEATURES === */
+        .feat-card {
+            background: #fff; border-radius: 20px; padding: 32px 28px; height: 100%;
+            border: 1px solid #eef3f8; transition: all 0.35s; position: relative; overflow: hidden;
+        }
+        .feat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0; transition: opacity 0.35s;
+        }
+        .feat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(19,84,122,0.1);
+        }
+        .feat-card:hover::before { opacity: 1; }
+        .feat-icon {
+            width: 56px; height: 56px; border-radius: 14px; display: inline-flex;
+            align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; margin-bottom: 18px;
+        }
+        .feat-card h5 { font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+        .feat-card p { color: #777; font-size: 0.92rem; line-height: 1.6; margin-bottom: 12px; }
+        .feat-link { color: var(--primary); font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+        .feat-link:hover { color: var(--secondary); }
+
+        /* === HOW IT WORKS === */
+        .how-section { background: var(--light-bg); }
+        .step-circle {
+            width: 80px; height: 80px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700;
+            margin: 0 auto 18px; position: relative;
+        }
+        .step-circle::after {
+            content: ''; position: absolute; width: 96px; height: 96px; border-radius: 50%;
+            border: 2px dashed rgba(19,84,122,0.15); top: -8px; left: -8px;
+        }
+        .connector { height: 2px; background: linear-gradient(90deg, var(--secondary), transparent); flex: 1; margin-top: 40px; }
+
+        /* === TESTIMONIALS === */
+        .test-section { background: linear-gradient(160deg, #0b1d2e, #13547a); position: relative; overflow: hidden; }
+        .test-section::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(128,208,199,0.1), transparent 70%); border-radius: 50%;
+        }
+        .test-card {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; height: 100%;
+        }
+        .test-card .stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 12px; }
+        .test-card blockquote { color: rgba(255,255,255,0.85); font-size: 0.95rem; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+        .test-card .author-name { color: var(--secondary); font-weight: 700; font-size: 0.9rem; }
+        .test-card .author-role { color: rgba(255,255,255,0.4); font-size: 0.8rem; }
+
+        /* === CTA === */
+        .cta-section {
+            background: linear-gradient(135deg, var(--secondary), var(--aqua));
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: ''; position: absolute; top: -100px; right: -100px;
+            width: 350px; height: 350px; border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+        }
+        .cta-section::after {
+            content: ''; position: absolute; bottom: -80px; left: -80px;
+            width: 250px; height: 250px; border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+        .cta-title { font-size: 2.6rem; font-weight: 700; color: var(--dark); }
+        .btn-cta-dark {
+            background: var(--dark); color: #fff; font-weight: 700; font-size: 1.1rem;
+            padding: 16px 44px; border-radius: 50px; border: none; transition: all 0.3s;
+        }
+        .btn-cta-dark:hover {
+            transform: translateY(-3px); color: #fff;
+            box-shadow: 0 10px 30px rgba(11,29,46,0.3);
+        }
+        .checklist { list-style: none; padding: 0; }
+        .checklist li {
+            padding: 6px 0; font-size: 1rem; font-weight: 500; color: var(--dark);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .checklist li i { color: var(--primary); font-size: 1.1rem; }
+
+        /* === FOOTER === */
+        .mk-footer { background: var(--dark); padding: 48px 0; }
+        .mk-footer p, .mk-footer a { color: rgba(255,255,255,0.45); font-size: 0.85rem; }
+        .mk-footer a { text-decoration: none; transition: color 0.2s; }
+        .mk-footer a:hover { color: var(--secondary); }
+        .footer-social a {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.5); font-size: 0.9rem; transition: all 0.3s;
+        }
+        .footer-social a:hover { background: var(--secondary); color: var(--dark); border-color: var(--secondary); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 991px) {
+            .float-card { display: none; }
+            .hero-title { font-size: 2.4rem; }
+            .connector { display: none; }
+        }
+        @media (max-width: 576px) {
+            .section-pad { padding: 60px 0; }
+            .section-title { font-size: 1.8rem; }
+            .cta-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV (Floating Pill) -->
+<nav class="mk-nav" id="mk-navbar">
+    <a href="{% url 'core:home_page' %}" class="nav-logo-link">
+        <img src="{% static 'core/images/header_logo.png' %}" alt="SmartPikin" class="nav-logo">
+    </a>
+    <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="#stories" class="nav-link">Stories</a>
+    </div>
+    <div class="nav-divider"></div>
+    <a href="{% url 'account:student_register' %}" class="btn btn-glow">Join Free <span style="margin-left:2px;">&rarr;</span></a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><i class="bi bi-list"></i></button>
+</nav>
+<div class="mk-nav-mobile" id="mk-nav-mobile">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#stories">Stories</a>
+    <a href="{% url 'account:student_register' %}" class="btn-glow-mobile">Join Free &rarr;</a>
+</div>
+
+<!-- HERO -->
+<section class="mk-hero">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="hero-tag mb-4">Built for Sierra Leone Students</div>
+                <h1 class="hero-title mb-4">
+                    Your AI<br><span class="highlight">Study Partner</span><br>Is Here.
+                </h1>
+                <p class="hero-sub mb-4">
+                    Quizzes that adapt. Flashcards that stick. Study notes that actually make sense.
+                    All powered by AI, all aligned to your curriculum, all free.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'account:student_register' %}" class="btn btn-hero-primary">Start Learning &mdash; It's Free</a>
+                    <a href="{% url 'account:login' %}" class="btn btn-hero-secondary">I Have an Account</a>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-visual">
+                <img src="{% static 'core/images/edu3.png' %}" alt="Students learning with AI" class="img-fluid rounded-4" style="opacity: 0.9; max-height: 440px; object-fit: cover; width: 100%;">
+                <div class="float-card fc-1">
+                    <div class="fc-icon" style="background: rgba(249,178,52,0.2);"><i class="bi bi-lightning-charge-fill" style="color: var(--gold);"></i></div>
+                    <h6>Quiz Mode</h6>
+                    <p>Timed MCQs on any topic</p>
+                </div>
+                <div class="float-card fc-2">
+                    <div class="fc-icon" style="background: rgba(128,208,199,0.2);"><i class="bi bi-card-heading" style="color: var(--secondary);"></i></div>
+                    <h6>Flashcards</h6>
+                    <p>Flip, learn, repeat</p>
+                </div>
+                <div class="float-card fc-3">
+                    <div class="fc-icon" style="background: rgba(127,255,212,0.15);"><i class="bi bi-journal-richtext" style="color: var(--aqua);"></i></div>
+                    <h6>Study Notes</h6>
+                    <p>AI-generated for your level</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">6+</div>
+                    <div class="stat-label">AI Tools</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">15</div>
+                    <div class="stat-label">Class Levels</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">100%</div>
+                    <div class="stat-label">Free for Students</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">Instant</div>
+                    <div class="stat-label">Content Generation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section-pad" style="background: #fff;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="section-tag">The Challenge</div>
+                <h2 class="section-title mb-3">Students in Sierra Leone deserve better tools.</h2>
+                <p class="section-sub">Limited textbooks. Overcrowded classrooms. Not enough teachers for every subject. The education gap is real &mdash; but it doesn't have to be permanent.</p>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background: var(--light-bg);">
+                            <i class="bi bi-book fs-3 mb-2 d-block" style="color: var(--primary);"></i>
+                            <h6 class="fw-bold" style="color: var(--dark);">Few Study Materials</h6>
+                            <p class="text-muted small mb-0">Many students share one textbook between five. AI generates unlimited practice on demand.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background: var(--light-bg);">
+                            <i class="bi bi-people fs-3 mb-2 d-block" style="color: var(--primary);"></i>
+                            <h6 class="fw-bold" style="color: var(--dark);">Teacher Shortages</h6>
+                            <p class="text-muted small mb-0">SmartPikin gives teachers superpowers and gives students a personal AI tutor.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background: var(--light-bg);">
+                            <i class="bi bi-trophy fs-3 mb-2 d-block" style="color: var(--primary);"></i>
+                            <h6 class="fw-bold" style="color: var(--dark);">Exam Pressure</h6>
+                            <p class="text-muted small mb-0">BECE and WASSCE prep is stressful. Timed quizzes build exam confidence.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background: var(--light-bg);">
+                            <i class="bi bi-wifi-off fs-3 mb-2 d-block" style="color: var(--primary);"></i>
+                            <h6 class="fw-bold" style="color: var(--dark);">Access Gaps</h6>
+                            <p class="text-muted small mb-0">Generate content online, download PDFs, study offline. Built for real conditions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section-pad" id="features" style="background: var(--light-bg);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-tag">Features</div>
+            <h2 class="section-title">Tools that make studying feel less like work</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, #13547a, #2e8b57);"><i class="bi bi-mortarboard-fill"></i></div>
+                    <h5>Exam Simulator</h5>
+                    <p>Practice NPSE, BECE, and WASSCE with real exam formats. Timed, graded on the WAEC scale, with AI feedback on where to improve.</p>
+                    <a href="{% url 'ai_core:exam_simulator' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, var(--primary), #1a7a9a);"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <h5>AI Quiz Mode</h5>
+                    <p>Timed multiple-choice quizzes on any topic. Instant feedback, explanations, score tracking, and confetti when you nail it.</p>
+                    <a href="{% url 'ai_core:quiz_mode' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, #e8a317, var(--gold));"><i class="bi bi-card-heading"></i></div>
+                    <h5>AI Flashcards</h5>
+                    <p>Beautiful 3D flip cards generated in seconds. Track what you know, review what you don't, master everything.</p>
+                    <a href="{% url 'ai_core:flashcard_generator' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, var(--secondary), var(--aqua));"><i class="bi bi-journal-richtext"></i></div>
+                    <h5>Lesson Plans & Study Notes</h5>
+                    <p>Teachers get complete lesson plans. Students get personalised study notes. All downloadable as PDFs.</p>
+                    <a href="{% url 'ai_core:lesson_plan_generator' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, #d63031, #e17055);"><i class="bi bi-upload"></i></div>
+                    <h5>Study from My Notes</h5>
+                    <p>Upload your own notes or paste text. AI generates questions, summaries, and study material from your content.</p>
+                    <a href="{% url 'ai_core:study_from_notes' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);"><i class="bi bi-pen-fill"></i></div>
+                    <h5>Creative Writing</h5>
+                    <p>AI prompts and guided exercises to sharpen essay writing, storytelling, and creative expression.</p>
+                    <a href="{% url 'ai_core:creative_writing' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: linear-gradient(135deg, #00b894, #55efc4);"><i class="bi bi-file-earmark-text-fill"></i></div>
+                    <h5>AI Summarizer</h5>
+                    <p>Paste any wall of text and get a clear, concise summary. Ideal for last-minute revision before exams.</p>
+                    <a href="{% url 'ai_core:teacher_summarization_form' %}" class="feat-link">Try it now &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-pad how-section" id="how">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-tag">How It Works</div>
+            <h2 class="section-title">Three steps. Zero stress.</h2>
+        </div>
+        <div class="row align-items-start justify-content-center">
+            <div class="col-lg-3 col-md-4 text-center mb-4">
+                <div class="step-circle" style="background: linear-gradient(135deg, var(--primary), #1a7a9a); color: #fff;">1</div>
+                <h5 class="fw-bold" style="color: var(--dark);">Sign Up</h5>
+                <p class="text-muted small">Create a free account as a student or teacher. 30 seconds, no payment.</p>
+            </div>
+            <div class="col-auto d-none d-lg-flex">
+                <div class="connector"></div>
+            </div>
+            <div class="col-lg-3 col-md-4 text-center mb-4">
+                <div class="step-circle" style="background: linear-gradient(135deg, var(--gold), #e8a317); color: var(--dark);">2</div>
+                <h5 class="fw-bold" style="color: var(--dark);">Pick a Tool</h5>
+                <p class="text-muted small">Choose from quizzes, flashcards, lesson plans, writing, summaries, or upload your own notes.</p>
+            </div>
+            <div class="col-auto d-none d-lg-flex">
+                <div class="connector"></div>
+            </div>
+            <div class="col-lg-3 col-md-4 text-center mb-4">
+                <div class="step-circle" style="background: linear-gradient(135deg, var(--secondary), var(--aqua)); color: var(--dark);">3</div>
+                <h5 class="fw-bold" style="color: var(--dark);">Learn Instantly</h5>
+                <p class="text-muted small">Enter your topic and class level. AI generates personalised content in seconds.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section-pad test-section" id="stories">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="text-center mb-5">
+            <div class="section-tag" style="background: rgba(128,208,199,0.15); color: var(--secondary);">Student Stories</div>
+            <h2 class="section-title" style="color: #fff;">Real students. Real impact.</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="test-card">
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                    <blockquote>"I used quiz mode to prepare for my BECE mocks. The timed questions felt like the real exam. I scored higher than I expected."</blockquote>
+                    <div class="author-name">Aminata K.</div>
+                    <div class="author-role">JSS 3 Student, Freetown</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="test-card">
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                    <blockquote>"Lesson planning used to eat my weekends. Now I generate a full plan in minutes and spend the time actually teaching."</blockquote>
+                    <div class="author-name">Mr. Bangura</div>
+                    <div class="author-role">Secondary Teacher, Bo</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="test-card">
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                    <blockquote>"The flashcards are addictive. I flip through them on my phone before bed. Biology terms finally make sense to me."</blockquote>
+                    <div class="author-name">Ibrahim S.</div>
+                    <div class="author-role">SS 2 Student, Kenema</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="section-pad cta-section">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="cta-title mb-3">Ready to study<br>smarter?</h2>
+                <p style="color: var(--dark); opacity: 0.7; font-size: 1.05rem; max-width: 440px;">Join thousands of Sierra Leonean students who are already using SmartPikin to ace their exams.</p>
+                <ul class="checklist mt-4 mb-4">
+                    <li><i class="bi bi-check-circle-fill"></i> NPSE, BECE &amp; WASSCE exam simulator</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Unlimited AI quizzes &amp; flashcards</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Lesson plans, writing &amp; AI summarizer</li>
+                    <li><i class="bi bi-check-circle-fill"></i> WAEC grading &amp; AI study feedback</li>
+                    <li><i class="bi bi-check-circle-fill"></i> All 15 class levels supported</li>
+                    <li><i class="bi bi-check-circle-fill"></i> No credit card. No hidden fees.</li>
+                </ul>
+                <a href="{% url 'account:student_register' %}" class="btn btn-cta-dark">Create Your Free Account</a>
+            </div>
+            <div class="col-lg-5 offset-lg-1 text-center">
+                <div class="p-5 rounded-4" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(10px);">
+                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 5rem; font-weight: 800; color: var(--dark); line-height: 1;">Free</div>
+                    <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Forever. For every student.</p>
+                    <hr style="border-color: rgba(19,84,122,0.15);">
+                    <p class="text-muted small mb-0">Teachers and schools also get full access to all content creation tools at no cost.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="mk-footer">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <img src="{% static 'core/images/header_logo.png' %}" alt="SmartPikin" style="height: 32px; opacity: 0.7;" class="mb-2 d-block">
+                <p>Built in Freetown, for Sierra Leone.</p>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0 text-md-center">
+                <a href="{% url 'core:home_page' %}" class="me-3">Home</a>
+                <a href="{% url 'account:login' %}" class="me-3">Sign In</a>
+                <a href="{% url 'account:student_register' %}">Register</a>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="footer-social d-flex gap-2 justify-content-md-end">
+                    <a href="#"><i class="bi bi-twitter"></i></a>
+                    <a href="#"><i class="bi bi-facebook"></i></a>
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                </div>
+                <p class="mt-2 mb-0">&copy; 2025 SmartPikin. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="{% static 'core/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+window.addEventListener('scroll', function() {
+    document.getElementById('mk-navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+        var t = document.querySelector(this.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+        document.getElementById('mk-nav-mobile').classList.remove('open');
+    });
+});
+/* Mobile toggle */
+document.getElementById('nav-toggle').addEventListener('click', function() {
+    var m = document.getElementById('mk-nav-mobile');
+    m.classList.toggle('open');
+    this.querySelector('i').className = m.classList.contains('open') ? 'bi bi-x-lg' : 'bi bi-list';
+});
+document.addEventListener('click', function(e) {
+    var nav = document.getElementById('mk-navbar');
+    var mob = document.getElementById('mk-nav-mobile');
+    if (!nav.contains(e.target) && !mob.contains(e.target)) {
+        mob.classList.remove('open');
+        document.getElementById('nav-toggle').querySelector('i').className = 'bi bi-list';
+    }
+});
+</script>
+</body>
+</html>

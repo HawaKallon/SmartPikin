@@ -1,0 +1,904 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block page_content %}
+<div class="container mt-5" style="padding-top: 80px;">
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ========== STATE 1: EXAM SELECTOR ========== -->
+    <div id="exam-setup" {% if exam_data %}style="display:none;"{% endif %}>
+        <div class="text-center mb-5">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: linear-gradient(135deg, #13547a, #2e8b57);">
+                <i class="bi bi-mortarboard-fill text-white fs-2"></i>
+            </div>
+            <h1 class="fw-bold" style="color: #1a1a2e;">Exam Simulator</h1>
+            <p class="text-muted" style="max-width: 520px; margin: 0 auto;">Practice with real exam formats. NPSE, BECE, and WASSCE — timed, graded, with feedback.</p>
+        </div>
+
+        <!-- Step 1: Exam Type -->
+        <div id="step-exam-type">
+            <h5 class="fw-bold mb-3 text-center" style="color: #555;">Select Your Exam</h5>
+            <div class="row g-3 justify-content-center mb-4">
+                <div class="col-md-4">
+                    <div class="exam-type-card" data-exam="NPSE">
+                        <div class="exam-type-icon" style="background: linear-gradient(135deg, #f9b234, #e8a317);">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <h5>NPSE</h5>
+                        <p class="text-muted small mb-0">National Primary School Examination</p>
+                        <span class="badge bg-warning text-dark mt-2">Primary 6</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="exam-type-card" data-exam="BECE">
+                        <div class="exam-type-icon" style="background: linear-gradient(135deg, #13547a, #80d0c7);">
+                            <i class="bi bi-journal-bookmark"></i>
+                        </div>
+                        <h5>BECE</h5>
+                        <p class="text-muted small mb-0">Basic Education Certificate Exam</p>
+                        <span class="badge bg-info text-dark mt-2">JSS 3</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="exam-type-card" data-exam="WASSCE">
+                        <div class="exam-type-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h5>WASSCE</h5>
+                        <p class="text-muted small mb-0">West African Senior School Certificate</p>
+                        <span class="badge bg-danger mt-2">SS 3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Subject Selection (hidden until exam type chosen) -->
+        <div id="step-subject" style="display: none;">
+            <h5 class="fw-bold mb-3 text-center" style="color: #555;">Select Subject — <span id="selected-exam-label" class="text-primary"></span></h5>
+            <div class="row g-3 justify-content-center mb-4" id="subject-grid"></div>
+            <div class="text-center">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-4" id="back-to-exams">
+                    <i class="bi bi-arrow-left me-1"></i> Change Exam
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Paper Type Selection (hidden until subject chosen) -->
+        <div id="step-paper-type" style="display: none;">
+            <h5 class="fw-bold mb-3 text-center" style="color: #555;">Select Paper Type — <span id="selected-subject-label" class="text-primary"></span></h5>
+            <div class="row g-3 justify-content-center mb-4" id="paper-type-grid"></div>
+            <div class="text-center">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-4" id="back-to-subjects-from-paper">
+                    <i class="bi bi-arrow-left me-1"></i> Change Subject
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Info Card + Start (hidden until paper type chosen) -->
+        <div id="step-start" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4 text-center">
+                            <h4 class="fw-bold" id="info-title" style="color: #1a1a2e;"></h4>
+                            <div class="d-flex justify-content-center gap-4 my-3">
+                                <div>
+                                    <span class="fs-3 fw-bold" style="color: #13547a;" id="info-questions">0</span>
+                                    <br><small class="text-muted">Questions</small>
+                                </div>
+                                <div>
+                                    <span class="fs-3 fw-bold" style="color: #e74c3c;" id="info-time">0</span>
+                                    <br><small class="text-muted">Minutes</small>
+                                </div>
+                            </div>
+                            <p class="text-muted small" id="info-instructions"></p>
+                            <form method="post" id="start-exam-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="config_id" id="config-id-input">
+                                <button type="submit" class="btn btn-lg px-5 py-2 text-white fw-bold mt-3" id="start-exam-btn" style="background: linear-gradient(135deg, #13547a, #2e8b57); border: none; border-radius: 50px;">
+                                    Start Exam
+                                </button>
+                            </form>
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 mt-3" id="back-to-paper-type">
+                                <i class="bi bi-arrow-left me-1"></i> Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATE 2: EXAM IN PROGRESS ========== -->
+    <div id="exam-playing" style="display: none;">
+        <!-- Top bar: timer + progress -->
+        <div class="exam-topbar">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <span class="fw-bold" id="exam-label" style="color: #1a1a2e;"></span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge rounded-pill px-3 py-2" style="background: #eee; color: #555; font-size: 0.85rem;" id="progress-text">1 / 50</span>
+                    <div class="exam-timer" id="exam-timer">
+                        <i class="bi bi-clock me-1"></i>
+                        <span id="timer-display">00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3 g-3">
+            <!-- Question navigator sidebar -->
+            <div class="col-lg-3 col-md-4 order-md-1 order-2">
+                <div class="card border-0 shadow-sm rounded-3 sticky-top" style="top: 100px;">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-2" style="font-size: 0.85rem; color: #888;">QUESTIONS</h6>
+                        <div class="question-nav-grid" id="question-nav-grid"></div>
+                        <hr>
+                        <div class="d-flex gap-2 flex-wrap" style="font-size: 0.75rem;">
+                            <span><span class="nav-dot nav-current"></span> Current</span>
+                            <span><span class="nav-dot nav-answered"></span> Answered</span>
+                            <span><span class="nav-dot nav-flagged"></span> Flagged</span>
+                            <span><span class="nav-dot nav-unanswered"></span> Unanswered</span>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3 rounded-pill fw-bold" id="submit-exam-btn">
+                            Submit Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question area -->
+            <div class="col-lg-9 col-md-8 order-md-2 order-1">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge rounded-pill px-3 py-2" style="background: #f0f0f0; color: #555;" id="question-number">Question 1</span>
+                            <button class="btn btn-sm rounded-pill px-3" id="flag-btn" title="Flag for review">
+                                <i class="bi bi-flag"></i> Flag
+                            </button>
+                        </div>
+                        <h5 class="fw-bold mb-4" id="question-text" style="color: #1a1a2e; line-height: 1.6;"></h5>
+                        <div id="options-container"></div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button class="btn btn-outline-secondary rounded-pill px-4" id="prev-btn">
+                                <i class="bi bi-arrow-left me-1"></i> Previous
+                            </button>
+                            <button class="btn rounded-pill px-4 text-white fw-bold" id="next-btn" style="background: #13547a;">
+                                Next <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATE 3: RESULTS ========== -->
+    <div id="exam-results" style="display: none;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold" style="color: #1a1a2e;">Exam Results</h2>
+        </div>
+
+        <!-- Score Card -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-6 col-md-8">
+                <div class="card border-0 shadow rounded-4 text-center p-4">
+                    <div class="mb-3">
+                        <span class="fs-1 fw-bold" id="result-grade" style="color: #13547a;"></span>
+                    </div>
+                    <div class="d-flex justify-content-center gap-5 mb-3">
+                        <div>
+                            <span class="fs-2 fw-bold" id="result-score"></span>
+                            <br><small class="text-muted">Score</small>
+                        </div>
+                        <div>
+                            <span class="fs-2 fw-bold" id="result-percentage" style="color: #2e8b57;"></span>
+                            <br><small class="text-muted">Percentage</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small" id="result-exam-info"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic Breakdown -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3" style="color: #1a1a2e;">Performance Breakdown</h5>
+                        <div id="topic-breakdown-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Feedback -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4" style="background: #f0fff0;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3" style="color: #2e8b57;"><i class="bi bi-lightbulb me-2"></i>Study Recommendations</h5>
+                        <p id="result-feedback" style="line-height: 1.8; color: #444;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Review -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <h5 class="fw-bold mb-3" style="color: #1a1a2e;">Question Review</h5>
+                <div id="review-container"></div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="text-center mb-5">
+            <a href="{% url 'ai_core:exam_simulator' %}" class="btn btn-lg px-5 py-2 text-white fw-bold rounded-pill" style="background: linear-gradient(135deg, #13547a, #2e8b57); border: none;">
+                Take Another Exam
+            </a>
+            <a href="{% url 'ai_core:exam_history' %}" class="btn btn-lg btn-outline-secondary px-4 py-2 rounded-pill ms-2">
+                View History
+            </a>
+        </div>
+    </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div class="modal fade" id="submitModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-exclamation-triangle fs-1" style="color: #f9b234;"></i>
+                    <h5 class="fw-bold mt-3">Submit Exam?</h5>
+                    <p class="text-muted" id="submit-modal-text">Are you sure you want to submit?</p>
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                        <button class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Go Back</button>
+                        <button class="btn btn-danger rounded-pill px-4 fw-bold" id="confirm-submit-btn">Submit Exam</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Data injection -->
+{% if exam_data %}
+{{ exam_data|json_script:"exam-data" }}
+{{ exam_meta|json_script:"exam-meta" }}
+{% endif %}
+{% if configs %}
+{{ configs|json_script:"configs-data" }}
+{% endif %}
+
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Exam type cards */
+    .exam-type-card {
+        background: #fff; border: 2px solid #eee; border-radius: 16px;
+        padding: 28px 20px; text-align: center; cursor: pointer;
+        transition: all 0.25s; height: 100%;
+    }
+    .exam-type-card:hover { border-color: #13547a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .exam-type-card.selected { border-color: #13547a; background: #f0f8ff; box-shadow: 0 8px 24px rgba(19,84,122,0.12); }
+    .exam-type-icon {
+        width: 56px; height: 56px; border-radius: 50%; display: inline-flex;
+        align-items: center; justify-content: center; margin-bottom: 12px;
+        color: #fff; font-size: 1.4rem;
+    }
+    .exam-type-card h5 { font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+
+    /* Subject card */
+    .subject-card {
+        background: #fff; border: 2px solid #eee; border-radius: 12px;
+        padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+    }
+    .subject-card:hover { border-color: #13547a; }
+    .subject-card.selected { border-color: #13547a; background: #f0f8ff; }
+    .subject-card h6 { font-weight: 600; color: #1a1a2e; margin: 0; font-size: 0.9rem; }
+    .subject-card small { color: #888; }
+
+    /* Paper type card */
+    .paper-type-card {
+        background: #fff; border: 2px solid #eee; border-radius: 16px;
+        padding: 28px 20px; text-align: center; cursor: pointer;
+        transition: all 0.25s; height: 100%;
+    }
+    .paper-type-card:hover { border-color: #13547a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .paper-type-card.selected { border-color: #13547a; background: #f0f8ff; box-shadow: 0 8px 24px rgba(19,84,122,0.12); }
+    .paper-type-card h5 { font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .paper-type-icon {
+        width: 56px; height: 56px; border-radius: 50%; display: inline-flex;
+        align-items: center; justify-content: center; margin-bottom: 12px;
+        color: #fff; font-size: 1.4rem;
+    }
+
+    /* Top bar */
+    .exam-topbar {
+        background: #fff; border-radius: 12px; padding: 12px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: sticky; top: 80px; z-index: 10;
+    }
+    .exam-timer {
+        background: #1a1a2e; color: #fff; padding: 8px 18px; border-radius: 999px;
+        font-weight: 700; font-size: 1rem; font-family: 'Courier New', monospace;
+    }
+    .exam-timer.warning { background: #e74c3c; }
+
+    /* Question navigator */
+    .question-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .nav-btn {
+        width: 100%; aspect-ratio: 1; border: 1px solid #ddd; border-radius: 6px;
+        background: #f8f8f8; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+        color: #555;
+    }
+    .nav-btn:hover { border-color: #13547a; }
+    .nav-btn.current { background: #13547a; color: #fff; border-color: #13547a; }
+    .nav-btn.answered { background: #2e8b57; color: #fff; border-color: #2e8b57; }
+    .nav-btn.flagged { background: #f9b234; color: #fff; border-color: #f9b234; }
+    .nav-dot {
+        display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px;
+    }
+    .nav-current { background: #13547a; }
+    .nav-answered { background: #2e8b57; }
+    .nav-flagged { background: #f9b234; }
+    .nav-unanswered { background: #f8f8f8; border: 1px solid #ddd; }
+
+    /* Option buttons */
+    .option-btn {
+        display: block; width: 100%; text-align: left; padding: 14px 20px;
+        border: 2px solid #eee; border-radius: 12px; background: #fff;
+        margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
+        font-size: 0.95rem; color: #333;
+    }
+    .option-btn:hover { border-color: #13547a; background: #f8fbff; }
+    .option-btn.selected { border-color: #13547a; background: #e8f4fd; font-weight: 600; }
+
+    /* Flag button */
+    #flag-btn { border: 1px solid #ddd; color: #888; }
+    #flag-btn.flagged { background: #fff8e6; border-color: #f9b234; color: #f9b234; }
+
+    /* Topic breakdown bars */
+    .topic-bar-container { margin-bottom: 12px; }
+    .topic-bar-label { font-size: 0.85rem; font-weight: 600; color: #333; margin-bottom: 4px; }
+    .topic-bar-track { background: #eee; border-radius: 6px; height: 24px; overflow: hidden; position: relative; }
+    .topic-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 700; color: #fff; min-width: 30px; }
+
+    /* Review cards */
+    .review-card { border: none; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    .review-card .card-body { padding: 16px 20px; }
+    .review-correct { border-left: 4px solid #2e8b57; }
+    .review-wrong { border-left: 4px solid #e74c3c; }
+    .review-skipped { border-left: 4px solid #aaa; }
+
+    @media (max-width: 767px) {
+        .question-nav-grid { grid-template-columns: repeat(8, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    /* ===== SELECTOR LOGIC ===== */
+    var allConfigs = [];
+    try { allConfigs = JSON.parse(document.getElementById('configs-data').textContent); } catch(e) {}
+
+    var selectedExam = null;
+    var selectedSubject = null;
+    var selectedConfig = null;
+
+    // Exam type cards
+    document.querySelectorAll('.exam-type-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            selectedExam = this.dataset.exam;
+            document.querySelectorAll('.exam-type-card').forEach(function(c) { c.classList.remove('selected'); });
+            this.classList.add('selected');
+            showSubjects(selectedExam);
+        });
+    });
+
+    function showSubjects(examType) {
+        var grid = document.getElementById('subject-grid');
+        grid.innerHTML = '';
+        // Get unique subjects for this exam type
+        var subjectConfigs = allConfigs.filter(function(c) { return c.exam_type === examType; });
+        var seen = {};
+        var uniqueSubjects = [];
+        subjectConfigs.forEach(function(c) {
+            if (!seen[c.subject]) {
+                seen[c.subject] = true;
+                uniqueSubjects.push(c.subject);
+            }
+        });
+        uniqueSubjects.forEach(function(subject) {
+            var col = document.createElement('div');
+            col.className = 'col-lg-3 col-md-4 col-6';
+            var configs = subjectConfigs.filter(function(c) { return c.subject === subject; });
+            var totalQ = configs.reduce(function(sum, c) { return sum + c.num_questions; }, 0);
+            var types = configs.map(function(c) { return c.paper_type === 'theory' ? 'Theory' : 'Obj'; }).join(' & ');
+            col.innerHTML = '<div class="subject-card" data-subject="' + subject + '">' +
+                '<h6>' + subject + '</h6>' +
+                '<small>' + types + '</small></div>';
+            grid.appendChild(col);
+        });
+        document.getElementById('selected-exam-label').textContent = examType;
+        document.getElementById('step-exam-type').style.display = 'none';
+        document.getElementById('step-subject').style.display = 'block';
+        document.getElementById('step-paper-type').style.display = 'none';
+        document.getElementById('step-start').style.display = 'none';
+
+        // Subject card click
+        grid.querySelectorAll('.subject-card').forEach(function(sc) {
+            sc.addEventListener('click', function() {
+                grid.querySelectorAll('.subject-card').forEach(function(s) { s.classList.remove('selected'); });
+                this.classList.add('selected');
+                selectedSubject = this.dataset.subject;
+                var configs = allConfigs.filter(function(c) {
+                    return c.exam_type === selectedExam && c.subject === selectedSubject;
+                });
+                if (configs.length === 1) {
+                    // Only one paper type, skip to start
+                    selectedConfig = configs[0];
+                    showStartCard(selectedConfig);
+                    document.getElementById('step-subject').style.display = 'none';
+                    document.getElementById('step-paper-type').style.display = 'none';
+                    document.getElementById('step-start').style.display = 'block';
+                } else {
+                    // Multiple paper types, show selection
+                    showPaperTypes(configs);
+                }
+            });
+        });
+    }
+
+    function showPaperTypes(configs) {
+        var grid = document.getElementById('paper-type-grid');
+        grid.innerHTML = '';
+        configs.forEach(function(c) {
+            var col = document.createElement('div');
+            col.className = 'col-md-4 col-6';
+            var isTheory = c.paper_type === 'theory';
+            var icon = isTheory ? 'bi-pencil-square' : 'bi-list-check';
+            var label = isTheory ? 'Theory' : 'Objectives (MCQ)';
+            var desc = isTheory ? 'Essay & short-answer questions' : 'Multiple choice questions';
+            var gradient = isTheory ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, #13547a, #2e8b57)';
+            col.innerHTML = '<div class="paper-type-card" data-config-id="' + c.id + '">' +
+                '<div class="paper-type-icon" style="background: ' + gradient + ';">' +
+                '<i class="bi ' + icon + '"></i></div>' +
+                '<h5>' + label + '</h5>' +
+                '<p class="text-muted small mb-1">' + desc + '</p>' +
+                '<small class="text-muted">' + c.num_questions + ' questions &middot; ' + c.time_minutes + ' min</small></div>';
+            grid.appendChild(col);
+        });
+        document.getElementById('selected-subject-label').textContent = selectedExam + ' ' + selectedSubject;
+        document.getElementById('step-subject').style.display = 'none';
+        document.getElementById('step-paper-type').style.display = 'block';
+        document.getElementById('step-start').style.display = 'none';
+
+        // Paper type card click
+        grid.querySelectorAll('.paper-type-card').forEach(function(pc) {
+            pc.addEventListener('click', function() {
+                grid.querySelectorAll('.paper-type-card').forEach(function(p) { p.classList.remove('selected'); });
+                this.classList.add('selected');
+                var configId = this.dataset.configId;
+                selectedConfig = allConfigs.find(function(c) { return c.id == configId; });
+                showStartCard(selectedConfig);
+                document.getElementById('step-paper-type').style.display = 'none';
+                document.getElementById('step-start').style.display = 'block';
+            });
+        });
+    }
+
+    function showStartCard(config) {
+        var paperLabel = config.paper_type === 'theory' ? ' (Theory)' : ' (Objectives)';
+        document.getElementById('info-title').textContent = config.exam_type + ' — ' + config.subject + paperLabel;
+        document.getElementById('info-questions').textContent = config.num_questions;
+        document.getElementById('info-time').textContent = config.time_minutes;
+        document.getElementById('info-instructions').textContent = config.instructions;
+        document.getElementById('config-id-input').value = config.id;
+    }
+
+    // Back buttons
+    var backExams = document.getElementById('back-to-exams');
+    if (backExams) backExams.addEventListener('click', function() {
+        document.getElementById('step-exam-type').style.display = 'block';
+        document.getElementById('step-subject').style.display = 'none';
+        document.getElementById('step-paper-type').style.display = 'none';
+        document.getElementById('step-start').style.display = 'none';
+    });
+    var backSubjectsFromPaper = document.getElementById('back-to-subjects-from-paper');
+    if (backSubjectsFromPaper) backSubjectsFromPaper.addEventListener('click', function() {
+        document.getElementById('step-subject').style.display = 'block';
+        document.getElementById('step-paper-type').style.display = 'none';
+        document.getElementById('step-start').style.display = 'none';
+    });
+    var backToPaperType = document.getElementById('back-to-paper-type');
+    if (backToPaperType) backToPaperType.addEventListener('click', function() {
+        // Determine where to go back to
+        var configs = allConfigs.filter(function(c) {
+            return c.exam_type === selectedExam && c.subject === selectedSubject;
+        });
+        if (configs.length > 1) {
+            document.getElementById('step-paper-type').style.display = 'block';
+        } else {
+            document.getElementById('step-subject').style.display = 'block';
+        }
+        document.getElementById('step-start').style.display = 'none';
+    });
+
+    // Loading state
+    var startForm = document.getElementById('start-exam-form');
+    if (startForm) {
+        startForm.addEventListener('submit', function() {
+            var btn = document.getElementById('start-exam-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating Exam...';
+        });
+    }
+
+    /* ===== EXAM ENGINE ===== */
+    var examDataEl = document.getElementById('exam-data');
+    if (!examDataEl) return;
+
+    var questions = JSON.parse(examDataEl.textContent);
+    var meta = JSON.parse(document.getElementById('exam-meta').textContent);
+
+    var isTheory = meta.paper_type === 'theory';
+    var currentIndex = 0;
+    var answers = isTheory ? new Array(questions.length).fill('') : new Array(questions.length).fill(-1);
+    var flags = new Array(questions.length).fill(false);
+    var timeLeft = meta.time_minutes * 60;
+    var timerInterval = null;
+    var examActive = true;
+
+    // Hide selector, show exam
+    document.getElementById('exam-setup').style.display = 'none';
+    document.getElementById('exam-playing').style.display = 'block';
+    document.getElementById('exam-label').textContent = meta.exam_type + ' — ' + meta.subject;
+
+    // Build navigator
+    var navGrid = document.getElementById('question-nav-grid');
+    for (var i = 0; i < questions.length; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        btn.textContent = i + 1;
+        btn.dataset.index = i;
+        btn.addEventListener('click', function() { navigateTo(parseInt(this.dataset.index)); });
+        navGrid.appendChild(btn);
+    }
+
+    showQuestion(0);
+    startTimer();
+
+    function showQuestion(index) {
+        currentIndex = index;
+        var q = questions[index];
+        document.getElementById('question-number').textContent = 'Question ' + (index + 1);
+        document.getElementById('question-text').textContent = q.question;
+        document.getElementById('progress-text').textContent = (index + 1) + ' / ' + questions.length;
+
+        // Flag button state
+        var flagBtn = document.getElementById('flag-btn');
+        if (flags[index]) {
+            flagBtn.classList.add('flagged');
+            flagBtn.innerHTML = '<i class="bi bi-flag-fill"></i> Flagged';
+        } else {
+            flagBtn.classList.remove('flagged');
+            flagBtn.innerHTML = '<i class="bi bi-flag"></i> Flag';
+        }
+
+        // Options or text area
+        var container = document.getElementById('options-container');
+        container.innerHTML = '';
+        if (isTheory) {
+            // Theory: show textarea
+            var marksInfo = document.createElement('p');
+            marksInfo.className = 'text-muted small mb-2';
+            marksInfo.innerHTML = '<i class="bi bi-info-circle me-1"></i>Marks: <strong>' + (q.marks || 10) + '</strong>';
+            container.appendChild(marksInfo);
+            var textarea = document.createElement('textarea');
+            textarea.className = 'form-control';
+            textarea.rows = 8;
+            textarea.placeholder = 'Write your answer here...';
+            textarea.style.borderRadius = '12px';
+            textarea.style.fontSize = '0.95rem';
+            textarea.value = answers[index] || '';
+            textarea.addEventListener('input', function() {
+                answers[currentIndex] = this.value;
+                updateNavigator();
+            });
+            container.appendChild(textarea);
+        } else {
+            // MCQ: show option buttons
+            var labels = ['A', 'B', 'C', 'D'];
+            q.options.forEach(function(opt, oi) {
+                var btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (answers[index] === oi) btn.classList.add('selected');
+                var optText = opt;
+                if (!opt.match(/^[A-D]\)/)) optText = labels[oi] + ') ' + opt;
+                btn.textContent = optText;
+                btn.addEventListener('click', function() { selectAnswer(oi); });
+                container.appendChild(btn);
+            });
+        }
+
+        // Nav buttons
+        document.getElementById('prev-btn').disabled = index === 0;
+        var nextBtn = document.getElementById('next-btn');
+        if (index === questions.length - 1) {
+            nextBtn.textContent = 'Finish';
+            nextBtn.style.background = '#e74c3c';
+        } else {
+            nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right ms-1"></i>';
+            nextBtn.style.background = '#13547a';
+        }
+
+        updateNavigator();
+    }
+
+    function selectAnswer(optIndex) {
+        answers[currentIndex] = optIndex;
+        document.querySelectorAll('.option-btn').forEach(function(btn, i) {
+            btn.classList.toggle('selected', i === optIndex);
+        });
+        updateNavigator();
+    }
+
+    function navigateTo(index) {
+        if (index >= 0 && index < questions.length) showQuestion(index);
+    }
+
+    function updateNavigator() {
+        var btns = navGrid.querySelectorAll('.nav-btn');
+        btns.forEach(function(btn, i) {
+            btn.className = 'nav-btn';
+            var isAnswered = isTheory ? (answers[i] && answers[i].trim() !== '') : (answers[i] !== -1);
+            if (i === currentIndex) btn.classList.add('current');
+            else if (flags[i]) btn.classList.add('flagged');
+            else if (isAnswered) btn.classList.add('answered');
+        });
+    }
+
+    // Flag toggle
+    document.getElementById('flag-btn').addEventListener('click', function() {
+        flags[currentIndex] = !flags[currentIndex];
+        if (flags[currentIndex]) {
+            this.classList.add('flagged');
+            this.innerHTML = '<i class="bi bi-flag-fill"></i> Flagged';
+        } else {
+            this.classList.remove('flagged');
+            this.innerHTML = '<i class="bi bi-flag"></i> Flag';
+        }
+        updateNavigator();
+    });
+
+    // Navigation
+    document.getElementById('prev-btn').addEventListener('click', function() { navigateTo(currentIndex - 1); });
+    document.getElementById('next-btn').addEventListener('click', function() {
+        if (currentIndex === questions.length - 1) {
+            promptSubmit();
+        } else {
+            navigateTo(currentIndex + 1);
+        }
+    });
+
+    // Keyboard: 1-4 for options (MCQ only), left/right arrows
+    document.addEventListener('keydown', function(e) {
+        if (!examActive) return;
+        // Skip number shortcuts when typing in a textarea
+        var tag = document.activeElement && document.activeElement.tagName;
+        if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+        if (!isTheory && e.key >= '1' && e.key <= '4') selectAnswer(parseInt(e.key) - 1);
+        if (e.key === 'ArrowRight' || e.key === 'n') {
+            if (currentIndex < questions.length - 1) navigateTo(currentIndex + 1);
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'p') navigateTo(currentIndex - 1);
+        if (e.key === 'f') document.getElementById('flag-btn').click();
+    });
+
+    // Timer
+    function startTimer() {
+        updateTimerDisplay();
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                examActive = false;
+                submitExam();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        var mins = Math.floor(timeLeft / 60);
+        var secs = timeLeft % 60;
+        document.getElementById('timer-display').textContent =
+            String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        var timerEl = document.getElementById('exam-timer');
+        if (timeLeft <= 300) timerEl.classList.add('warning');
+        else timerEl.classList.remove('warning');
+    }
+
+    // Submit
+    document.getElementById('submit-exam-btn').addEventListener('click', promptSubmit);
+
+    function promptSubmit() {
+        var unanswered = isTheory
+            ? answers.filter(function(a) { return !a || a.trim() === ''; }).length
+            : answers.filter(function(a) { return a === -1; }).length;
+        var modalText = document.getElementById('submit-modal-text');
+        if (unanswered > 0) {
+            modalText.textContent = 'You have ' + unanswered + ' unanswered question' + (unanswered > 1 ? 's' : '') + '. Are you sure you want to submit?';
+        } else {
+            modalText.textContent = 'All questions answered. Ready to submit?';
+        }
+        var modal = new bootstrap.Modal(document.getElementById('submitModal'));
+        modal.show();
+    }
+
+    document.getElementById('confirm-submit-btn').addEventListener('click', function() {
+        bootstrap.Modal.getInstance(document.getElementById('submitModal')).hide();
+        submitExam();
+    });
+
+    function submitExam() {
+        examActive = false;
+        clearInterval(timerInterval);
+
+        // Disable all interaction
+        document.querySelectorAll('.option-btn, .nav-btn, #flag-btn, #prev-btn, #next-btn, #submit-exam-btn').forEach(function(el) {
+            el.disabled = true;
+            el.style.pointerEvents = 'none';
+        });
+
+        document.getElementById('submit-exam-btn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Grading...';
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        fetch("{% url 'ai_core:exam_submit' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken ? csrfToken.value : '',
+            },
+            body: JSON.stringify({
+                session_id: meta.session_id,
+                answers: answers,
+            }),
+        })
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            if (data.status === 'ok') {
+                showResults(data);
+            } else {
+                alert('Error: ' + (data.message || 'Something went wrong'));
+            }
+        })
+        .catch(function(err) {
+            alert('Network error. Please try again.');
+            console.error(err);
+        });
+    }
+
+    function showResults(data) {
+        document.getElementById('exam-playing').style.display = 'none';
+        document.getElementById('exam-results').style.display = 'block';
+
+        // Score card
+        document.getElementById('result-grade').textContent = data.grade;
+        document.getElementById('result-score').textContent = data.score + ' / ' + data.total;
+        document.getElementById('result-percentage').textContent = data.percentage + '%';
+        document.getElementById('result-exam-info').textContent = meta.exam_type + ' — ' + meta.subject;
+
+        // Grade color
+        var gradeEl = document.getElementById('result-grade');
+        if (data.percentage >= 70) gradeEl.style.color = '#2e8b57';
+        else if (data.percentage >= 50) gradeEl.style.color = '#f9b234';
+        else gradeEl.style.color = '#e74c3c';
+
+        // Topic breakdown
+        var breakdownContainer = document.getElementById('topic-breakdown-container');
+        breakdownContainer.innerHTML = '';
+        for (var topic in data.topic_breakdown) {
+            var tb = data.topic_breakdown[topic];
+            var pct = Math.round((tb.correct / tb.total) * 100);
+            var barColor = pct >= 70 ? '#2e8b57' : pct >= 50 ? '#f9b234' : '#e74c3c';
+            breakdownContainer.innerHTML +=
+                '<div class="topic-bar-container">' +
+                '<div class="d-flex justify-content-between"><span class="topic-bar-label">' + topic + '</span>' +
+                '<span style="font-size: 0.8rem; color: #888;">' + tb.correct + '/' + tb.total + '</span></div>' +
+                '<div class="topic-bar-track"><div class="topic-bar-fill" style="width: ' + pct + '%; background: ' + barColor + ';">' + pct + '%</div></div></div>';
+        }
+
+        // Feedback
+        document.getElementById('result-feedback').textContent = data.feedback;
+
+        // Question review
+        var reviewContainer = document.getElementById('review-container');
+        reviewContainer.innerHTML = '';
+        if (data.paper_type === 'theory') {
+            // Theory review
+            data.review.forEach(function(r, i) {
+                var hasAnswer = r.student_answer && r.student_answer.trim() !== '';
+                var pct = r.marks_available > 0 ? (r.marks_earned / r.marks_available) : 0;
+                var cardClass = !hasAnswer ? 'review-skipped' : (pct >= 0.5 ? 'review-correct' : 'review-wrong');
+                var badge = !hasAnswer ? '<span class="badge bg-secondary">Skipped</span>' :
+                    '<span class="badge" style="background: ' + (pct >= 0.7 ? '#2e8b57' : pct >= 0.5 ? '#f9b234' : '#e74c3c') + ';">' +
+                    r.marks_earned + '/' + r.marks_available + ' marks</span>';
+
+                var html = '<div class="card shadow-sm review-card ' + cardClass + '">' +
+                    '<div class="card-body">' +
+                    '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                    '<span class="fw-bold" style="color: #888;">Q' + (i + 1) + '. <span style="color: #1a1a2e;">' + escapeHtml(r.question) + '</span></span>' +
+                    badge + '</div>';
+
+                if (hasAnswer) {
+                    html += '<div class="p-2 rounded mb-2" style="background: #f8f9fa; font-size: 0.9rem;"><strong>Your answer:</strong><br>' + escapeHtml(r.student_answer) + '</div>';
+                }
+                if (r.ai_feedback) {
+                    html += '<p class="mb-1 small" style="color: #13547a;"><i class="bi bi-chat-dots me-1"></i><strong>Feedback:</strong> ' + escapeHtml(r.ai_feedback) + '</p>';
+                }
+                if (r.marking_guide) {
+                    html += '<p class="mb-0 small text-muted"><em>Key points: ' + escapeHtml(r.marking_guide) + '</em></p>';
+                }
+                html += '</div></div>';
+                reviewContainer.innerHTML += html;
+            });
+        } else {
+            // MCQ review
+            data.review.forEach(function(r, i) {
+                var isCorrect = r.selected === r.correct;
+                var isSkipped = r.selected === -1;
+                var cardClass = isSkipped ? 'review-skipped' : (isCorrect ? 'review-correct' : 'review-wrong');
+                var badge = isSkipped ? '<span class="badge bg-secondary">Skipped</span>' :
+                    (isCorrect ? '<span class="badge bg-success">Correct</span>' : '<span class="badge bg-danger">Wrong</span>');
+                var labels = ['A', 'B', 'C', 'D'];
+
+                var html = '<div class="card shadow-sm review-card ' + cardClass + '">' +
+                    '<div class="card-body">' +
+                    '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                    '<span class="fw-bold" style="color: #888;">Q' + (i + 1) + '. <span style="color: #1a1a2e;">' + escapeHtml(r.question) + '</span></span>' +
+                    badge + '</div>';
+
+                if (!isCorrect) {
+                    html += '<p class="mb-1 small"><strong>Correct answer:</strong> ' + labels[r.correct] + ') ' + escapeHtml(r.options[r.correct]) + '</p>';
+                }
+                if (r.selected !== -1 && !isCorrect) {
+                    html += '<p class="mb-1 small text-danger"><strong>Your answer:</strong> ' + labels[r.selected] + ') ' + escapeHtml(r.options[r.selected]) + '</p>';
+                }
+                if (r.explanation) {
+                    html += '<p class="mb-0 small text-muted"><em>' + escapeHtml(r.explanation) + '</em></p>';
+                }
+                html += '</div></div>';
+                reviewContainer.innerHTML += html;
+            });
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(text) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(text));
+        return d.innerHTML;
+    }
+
+})();
+</script>
+{% endblock scripts %}
