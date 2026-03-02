@@ -9,3 +9,11 @@
 - cognitive skills and profiling - where teachers can be able to see student's profile so they can adjust their teachings accordingly. (not sure how this would work on the platform but plan it first)
 - the quiz mode also be for subjects not for a particular topic alone
 - feedbacks on quizs, tests etc on where to study and improve on.
+
+
+
+-----------------
+
+- convert normal books into E-Books and get quiz or something from it.
+- notes be generated for the particular class the student is in - (so need to update the registration aspect of the students so they could include some of these information that we would be using in the platform)
+- 
